@@ -59,7 +59,7 @@ void ProceduralScene::RenderTheSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatri
 
 	// Render the sphere.
 	m_sphereMesh->SendData(m_Direct3D->GetDeviceContext());
-	m_perlinNoiseShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_sphereMesh->GetTexture());
+	m_perlinNoiseShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_sphereMesh->GetTexture(), m_Timer);
 	m_perlinNoiseShader->Render(m_Direct3D->GetDeviceContext(), m_sphereMesh->GetIndexCount());
 
 	// Reset the world matrix.
