@@ -1,4 +1,4 @@
-// Base scene.cpp
+// Procedural scene.cpp
 #include "ProceduralScene.h"
 
 //////////////////////////////////////////////////////////
@@ -11,16 +11,22 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 {
 
 	// Initialising the meshes.
-	m_sphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/lava.png", 5);
+	m_sphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/lava.png", 20);
 
 	// Initialising the shaders.
-	m_perlinNoiseShader = new PerlinNoiseShader(m_Direct3D->GetDevice(), hwnd);
+	m_perlinNoiseShader = new PerlinNoiseShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::SUN);
 
 	// Sphere rotation.
 	sphereRotation = 0.0f;
 
 }
 
+//////////////////////////////////////////////////////////
+//======================================================//
+//						Destructor						//
+//======================================================//
+// This will release all of our pointers.				//
+//////////////////////////////////////////////////////////
 ProceduralScene::~ProceduralScene()
 {
 

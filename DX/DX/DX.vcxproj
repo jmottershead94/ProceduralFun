@@ -127,6 +127,8 @@
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="BaseMesh.h" />
+    <ClInclude Include="ObjectIDNumber.h" />
+    <ClInclude Include="ProceduralIDNumber.h" />
     <ClInclude Include="ProceduralScene.h" />
     <ClInclude Include="BaseScene.h" />
     <ClInclude Include="BaseShader.h" />
@@ -162,13 +164,25 @@
     <ClInclude Include="TokenStream.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\shaders\base_perlin_noise.glsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\shaders\base_perlin_noise.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="..\shaders\boxBlur_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\shaders\boxBlur_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\shaders\burning_sun_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\shaders\burning_sun_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\shaders\depth_ps.hlsl">

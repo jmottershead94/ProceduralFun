@@ -1,9 +1,19 @@
 // texture shader.cpp
 #include "PerlinNoiseShader.h"
 
-PerlinNoiseShader::PerlinNoiseShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
+PerlinNoiseShader::PerlinNoiseShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber) : BaseShader(device, hwnd)
 {
-	InitShader(L"../shaders/perlin_noise_vs.hlsl", L"../shaders/perlin_noise_ps.hlsl");
+
+	// If we are processing the Sun.
+	if (proceduralIDNumber == ProceduralIDNumber::SUN)
+	{
+		InitShader(L"../shaders/burning_sun_vs.hlsl", L"../shaders/burning_sun_ps.hlsl");
+	}
+	else if (proceduralIDNumber == ProceduralIDNumber::FLORA)
+	{
+		InitShader(L"../shaders/perlin_noise_vs.hlsl", L"../shaders/perlin_noise_ps.hlsl");
+	}
+	
 }
 
 PerlinNoiseShader::~PerlinNoiseShader()
@@ -71,7 +81,6 @@ void PerlinNoiseShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 	// Create the texture sampler state.
 	m_device->CreateSamplerState(&samplerDesc, &m_sampleState);
 }
-
 
 void PerlinNoiseShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture)
 {

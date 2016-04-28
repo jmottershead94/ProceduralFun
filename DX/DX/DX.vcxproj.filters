@@ -251,9 +251,18 @@
     <ClInclude Include="ProceduralScene.h">
       <Filter>Source Files\Scenes</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectIDNumber.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProceduralIDNumber.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="..\shaders\base_perlin_noise.glsl">
+      <Filter>Source Files\Shaders\shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="..\shaders\texture_ps.hlsl">
@@ -317,6 +326,15 @@
       <Filter>Source Files\Shaders\shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\shaders\perlin_noise_ps.hlsl">
+      <Filter>Source Files\Shaders\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\shaders\base_perlin_noise.hlsl">
+      <Filter>Source Files\Shaders\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\shaders\burning_sun_ps.hlsl">
+      <Filter>Source Files\Shaders\shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\shaders\burning_sun_vs.hlsl">
       <Filter>Source Files\Shaders\shaders</Filter>
     </FxCompile>
   </ItemGroup>
