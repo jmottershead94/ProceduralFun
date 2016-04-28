@@ -47,10 +47,8 @@ Scene::Scene(HWND hwnd, int screenWidth, int screenHeight, D3D* direct3D, Input 
 	m_pointLights = new PointLightGroup(m_Direct3D->GetDevice(), L"../res/DefaultDiffuse.png", XMFLOAT3(50.0f, 25.0f, 50.0f));
 	m_terrain = new Terrain(m_Direct3D->GetDevice(), hwnd, L"../res/terrainDirt.jpg", L"../res/heightMapTest.png", L"../res/heightNormalTest.png");
 	m_particleSystem = new ParticleSystem(m_Direct3D->GetDevice());
-	m_sphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/lava.png", 5);
 
 	// Initialising noise stuff.
-	m_noisePlane = new NoisePlane(m_Direct3D->GetDevice(), L"../res/DefaultDiffuse.png");
 	//unsigned int seed = 237;
 	//m_perlinNoise = new PerlinNoise(seed);
 
@@ -62,9 +60,9 @@ Scene::Scene(HWND hwnd, int screenWidth, int screenHeight, D3D* direct3D, Input 
 	m_particleShader = new ParticleShader(m_Direct3D->GetDevice(), hwnd);
 	m_masterShadowShader = new MasterShadowShader(m_Direct3D->GetDevice(), hwnd);
 	m_masterShader = new MasterShader(m_Direct3D->GetDevice(), hwnd);
-	m_perlinNoiseShader = new PerlinNoiseShader(m_Direct3D->GetDevice(), hwnd);
 
-	sphereRotation = 0.0f;
+	// Initialising the procedural scene.
+	m_proceduralScene = new ProceduralScene(hwnd, screenWidth, screenHeight, direct3D, in, cam, timer);
 
 }
 
@@ -153,12 +151,6 @@ Scene::~Scene()
 		m_particleSystem = nullptr;
 	}
 
-	if (m_sphereMesh)
-	{
-		delete m_sphereMesh;
-		m_sphereMesh = nullptr;
-	}
-
 	if (m_depthShader)
 	{
 		delete m_depthShader;
@@ -201,17 +193,16 @@ Scene::~Scene()
 		m_masterShader = nullptr;
 	}
 
-	if (m_perlinNoiseShader)
+	if (m_proceduralScene)
 	{
-		delete m_perlinNoiseShader;
-		m_perlinNoiseShader = nullptr;
+		// Clean up the procedural scene.
+		m_proceduralScene->~ProceduralScene();
+
+		// Delete the procedural scene pointer.
+		delete m_proceduralScene;
+		m_proceduralScene = nullptr;
 	}
 
-	if (m_noisePlane)
-	{
-		delete m_noisePlane;
-		m_noisePlane = nullptr;
-	}
 }
 
 //////////////////////////////////////////////////////////
@@ -223,8 +214,6 @@ Scene::~Scene()
 //////////////////////////////////////////////////////////
 void Scene::Controls(float dt)
 {
-	sphereRotation+=0.001f;
-
 	// Terrain Light controls.
 	if (m_Input->isKeyDown(VK_NUMPAD6))
 	{
@@ -358,9 +347,6 @@ void Scene::RenderToTextureBlur()
 
 	// Rendering the particles.
 	RenderTheParticles(worldMatrix, viewMatrix, projectionMatrix);
-
-	
-	RenderTheSphere(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_Direct3D->SetBackBufferRenderTarget();
@@ -682,44 +668,6 @@ void Scene::RenderTheParticles(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMA
 
 }
 
-void Scene::RenderTheNoisePlane(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
-{
-
-	// Moving the plane where I want it to be.
-	worldMatrix = XMMatrixTranslation(0.0f, 10.0f, 0.0f);
-	worldMatrix = XMMatrixScaling(100.0f, 100.0f, 100.0f);
-
-	// Render the plane.
-	m_noisePlane->SendData(m_Direct3D->GetDeviceContext());
-	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_noisePlane->GetTexture());
-	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_noisePlane->GetIndexCount());
-
-	// Reset the world matrix.
-	m_Direct3D->GetWorldMatrix(worldMatrix);
-
-}
-
-void Scene::RenderTheSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
-{
-	// The new translation, where we want our object to be.
-	XMMATRIX new_transformation = XMMatrixTranslation(25.0f, 5.0f, -75.0f);
-	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
-	XMMATRIX new_scale = XMMatrixScaling(5.0f, 5.0f, 5.0f);
-
-	// Multiplying the transformations together.
-	worldMatrix = new_scale;
-	worldMatrix *= new_rotation;
-	worldMatrix *= new_transformation;
-
-	// Render the sphere.
-	m_sphereMesh->SendData(m_Direct3D->GetDeviceContext());
-	m_perlinNoiseShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_sphereMesh->GetTexture());
-	m_perlinNoiseShader->Render(m_Direct3D->GetDeviceContext(), m_sphereMesh->GetIndexCount());
-
-	// Reset the world matrix.
-	m_Direct3D->GetWorldMatrix(worldMatrix);
-}
-
 //////////////////////////////////////////////////////////
 //======================================================//
 //					RenderTheScene						//
@@ -771,11 +719,8 @@ void Scene::RenderTheScene(float dt)
 	// Rendering the particles.
 	RenderTheParticles(worldMatrix, viewMatrix, projectionMatrix);
 
-	// Rendering the noise plane.
-	RenderTheNoisePlane(worldMatrix, viewMatrix, projectionMatrix);
-
-	// Rendering the procedurally texture controlled sphere - HOPEFULLY!
-	RenderTheSphere(worldMatrix, viewMatrix, projectionMatrix);
+	// Render the procedural methods scene.
+	m_proceduralScene->RenderTheScene(dt, worldMatrix, viewMatrix, projectionMatrix);
 
 	// To render ortho mesh.
 	// Turn off the z buffer to begin all 2D rendering.

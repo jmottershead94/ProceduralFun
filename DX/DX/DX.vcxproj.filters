@@ -141,6 +141,9 @@
     <ClCompile Include="PerlinNoiseShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="ProceduralScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Texture.h">
@@ -244,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="PerlinNoiseShader.h">
       <Filter>Source Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="ProceduralScene.h">
+      <Filter>Source Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

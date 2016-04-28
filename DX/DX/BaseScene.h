@@ -20,6 +20,11 @@
 class BaseScene
 {
 
+	public:
+		// Methods.
+		void Controls(float dt);
+		void RenderTheScene(float dt);
+
 	protected:
 		// Attributes.
 		const int SHADOWMAP_WIDTH = 1024;	// Used for shadow mapping.
@@ -36,10 +41,7 @@ class BaseScene
 		// Methods.
 		BaseScene(HWND hwnd, int screenWidth, int screenHeight, D3D* direct3D, Input* in, Camera* cam, Timer* timer);
 
-		// Pure virtual functions.
-		// What our scene classes must have.
-		virtual void Controls(float dt) = 0;
-		virtual void RenderTheScene(float dt) = 0;		
+			
 
 };
 

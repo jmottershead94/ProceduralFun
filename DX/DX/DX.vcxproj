@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="BaseMesh.cpp" />
+    <ClCompile Include="ProceduralScene.cpp" />
     <ClCompile Include="BaseScene.cpp" />
     <ClCompile Include="BaseShader.cpp" />
     <ClCompile Include="BoxBlurShader.cpp" />
@@ -126,6 +127,7 @@
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="BaseMesh.h" />
+    <ClInclude Include="ProceduralScene.h" />
     <ClInclude Include="BaseScene.h" />
     <ClInclude Include="BaseShader.h" />
     <ClInclude Include="BoxBlurShader.h" />

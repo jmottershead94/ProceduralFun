@@ -35,6 +35,9 @@
 #include "MasterShader.h"
 #include "PerlinNoiseShader.h"
 
+// Scenes.
+#include "ProceduralScene.h"
+
 // Scene IS A Base Scene, therefore inherits from it.
 class Scene : protected BaseScene
 {
@@ -71,7 +74,7 @@ class Scene : protected BaseScene
 		PointLightGroup* m_pointLights;												// The group of point lights used to interact with the terrain.
 		Terrain* m_terrain;															// The terrain mesh used to show off height and normal maps, as well as tessellation.
 		ParticleSystem* m_particleSystem;											// The particle system mesh used to show off the geometry shader.
-		SphereMesh* m_sphereMesh;													// The sphere mesh that we will be applying the perlin noise texture to.
+		//SphereMesh* m_sphereMesh;													// The sphere mesh that we will be applying the perlin noise texture to.
 
 		// Shaders.
 		DepthShader* m_depthShader;													// The depth shader used for shadows,
@@ -81,11 +84,9 @@ class Scene : protected BaseScene
 		ParticleShader* m_particleShader;											// The particle shader used for rendering and sorting out our particles.
 		MasterShadowShader* m_masterShadowShader;									// The master shadow shader for dealing with multiple shadows.
 		MasterShader* m_masterShader;												// The master shader for dealing with point lights, as well as tessellation.
-		PerlinNoiseShader* m_perlinNoiseShader;										// The shader that handles perlin noise processing.
 
-		// Testing Noise.
-		NoisePlane* m_noisePlane;											// The perlin noise plane.
-		float sphereRotation;
+		// Scenes.
+		ProceduralScene* m_proceduralScene;
 
 		// Methods.
 		void Controls(float dt);
@@ -99,8 +100,6 @@ class Scene : protected BaseScene
 		void RenderTheTerrain(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheWater(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheParticles(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
-		void RenderTheNoisePlane(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
-		void RenderTheSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 
 };
 
