@@ -17,6 +17,9 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	m_normalWaterSphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/cool_water.jpg", 20);
 	m_proceduralLightningSphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/lightning.jpg", 20);
 	m_normalLightningSphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/lightning.jpg", 20);
+	m_tree = new Model(m_Direct3D->GetDevice(), L"../res/tree_tex.png", L"../res/Models/tree.obj");
+	m_shrub = new Model(m_Direct3D->GetDevice(), L"../res/grassTexture.png", L"../res/Models/bush.obj");
+	//m_grass = new Model(m_Direct3D->GetDevice(), L"../res/grassTexture.png", L"../res/Models/grass.obj");
 
 	// Initialising the shaders.
 	m_textureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
@@ -70,6 +73,24 @@ ProceduralScene::~ProceduralScene()
 	{
 		delete m_normalLightningSphereMesh;
 		m_normalLightningSphereMesh = nullptr;
+	}
+
+	if (m_tree)
+	{
+		delete m_tree;
+		m_tree = nullptr;
+	}
+
+	if (m_shrub)
+	{
+		delete m_shrub;
+		m_shrub = nullptr;
+	}
+
+	if (m_grass)
+	{
+		delete m_grass;
+		m_grass = nullptr;
 	}
 
 	if (m_textureShader)
@@ -168,6 +189,78 @@ void ProceduralScene::RenderTheLightningSphere(XMMATRIX& worldMatrix, XMMATRIX& 
 
 }
 
+void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+{
+
+	// The new translation, where we want our object to be.
+	XMMATRIX new_transformation = XMMatrixTranslation(15.0f, 0.0f, -50.0f);
+	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(80.0f, 0.0f, 0.0f);
+	XMMATRIX new_scale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+
+	// Multiplying the transformations together.
+	worldMatrix = new_scale;
+	worldMatrix *= new_rotation;
+	worldMatrix *= new_transformation;
+
+	// Render the tree.
+	m_tree->SendData(m_Direct3D->GetDeviceContext());
+
+	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture());
+	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_tree->GetIndexCount());
+	
+	// Reset the world matrix.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+}
+
+void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+{
+
+	// The new translation, where we want our object to be.
+	XMMATRIX new_transformation = XMMatrixTranslation(25.0f, 0.0f, -60.0f);
+	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
+	XMMATRIX new_scale = XMMatrixScaling(0.0625f, 0.0625f, 0.0625f);
+
+	// Multiplying the transformations together.
+	worldMatrix = new_scale;
+	worldMatrix *= new_rotation;
+	worldMatrix *= new_transformation;
+
+	// Render the tree.
+	m_shrub->SendData(m_Direct3D->GetDeviceContext());
+
+	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture());
+	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_shrub->GetIndexCount());
+
+	// Reset the world matrix.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+}
+
+void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+{
+
+	// The new translation, where we want our object to be.
+	XMMATRIX new_transformation = XMMatrixTranslation(0.0f, 5.0f, -50.0f);
+	/*XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
+	XMMATRIX new_scale = XMMatrixScaling(5.0f, 5.0f, 5.0f);*/
+
+	// Multiplying the transformations together.
+	/*worldMatrix = new_scale;
+	worldMatrix *= new_rotation;*/
+	worldMatrix = new_transformation;
+
+	// Render the tree.
+	m_grass->SendData(m_Direct3D->GetDeviceContext());
+
+	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_grass->GetTexture());
+	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_grass->GetIndexCount());
+
+	// Reset the world matrix.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+}
+
 void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
 {
 
@@ -191,5 +284,14 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 
 	// Render the normal sphere.
 	RenderTheLightningSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the tree model.
+	RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the shrub model.
+	RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the grass model.
+	//RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix);
 
 }

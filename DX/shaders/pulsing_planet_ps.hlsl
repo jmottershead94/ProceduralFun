@@ -128,10 +128,12 @@ float4 main(InputType input) : SV_TARGET
 	// Applying the final noise layer.
 	float overallNoise = (CreatePerlinNoise(1, (input.tex.x * 0.1f), (input.tex.y * 0.1f)) * threshold);
 	
+	// Add all of our noise values together.
 	float index = perlinNoise + rigidNoise + overallNoise;
 	
+	// Sample our current texture.
 	textureColour = shaderTexture.Sample(SampleType, index);
-	//textureColour += float4(0.0f, 0.0f, threshold * 50.0f, 0.0f);
 
+	// Return the current texture colour.
 	return textureColour;
 }

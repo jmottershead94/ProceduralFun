@@ -20,6 +20,7 @@
 
 // Geometry.
 #include "SphereMesh.h"
+#include "Model.h"
 
 // Shaders.
 #include "TextureShader.h"
@@ -32,9 +33,7 @@ class ProceduralScene : public BaseScene
 		// Methods.
 		ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D3D* direct3D, Input* in, Camera* cam, Timer* timer);
 		~ProceduralScene();
-		
 		void RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
-		
 
 		// Setters.
 		// Setting the current sphere rotation.
@@ -52,6 +51,9 @@ class ProceduralScene : public BaseScene
 		SphereMesh* m_normalWaterSphereMesh;			// The sphere mesh that we will show off the original texture.
 		SphereMesh* m_proceduralLightningSphereMesh;	// The sphere mesh that we will be applying the perlin noise texture to.
 		SphereMesh* m_normalLightningSphereMesh;		// The sphere mesh that we will show off the original texture.
+		Model* m_tree;
+		Model* m_shrub;
+		Model* m_grass;
 
 		// Shaders.
 		TextureShader* m_textureShader;				// This will be used to show off the original texture.
@@ -66,6 +68,9 @@ class ProceduralScene : public BaseScene
 		void RenderTheWaterSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheLightningProceduralSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheLightningSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+		void RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+		void RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+		void RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 };
 
 #endif
