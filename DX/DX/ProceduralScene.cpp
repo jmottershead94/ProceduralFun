@@ -195,7 +195,7 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 	// The new translation, where we want our object to be.
 	XMMATRIX new_transformation = XMMatrixTranslation(15.0f, 0.0f, -50.0f);
 	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(80.0f, 0.0f, 0.0f);
-	XMMATRIX new_scale = XMMatrixScaling(0.5f, 0.5f, 0.5f);
+	XMMATRIX new_scale = XMMatrixScaling(0.25f, 0.25f, -0.25f);
 
 	// Multiplying the transformations together.
 	worldMatrix = new_scale;
