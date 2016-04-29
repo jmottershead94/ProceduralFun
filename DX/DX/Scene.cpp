@@ -717,7 +717,7 @@ void Scene::RenderTheScene(float dt)
 	RenderTheWater(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering the particles.
-	RenderTheParticles(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheParticles(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Render the procedural methods scene.
 	m_proceduralScene->RenderTheScene(dt, worldMatrix, viewMatrix, projectionMatrix);
@@ -746,7 +746,7 @@ void Scene::RenderTheScene(float dt)
 
 	// Turn on the z buffer to render back to the 3D scene.
 	m_Direct3D->TurnZBufferOn();
-
+	
 	// Present the rendered scene to the screen.
 	m_Direct3D->EndScene();
 

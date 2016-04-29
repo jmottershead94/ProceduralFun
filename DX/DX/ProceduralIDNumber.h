@@ -4,7 +4,7 @@
 #ifndef _PROCEDURALIDNUMBER_H
 #define _PROCEDURALIDNUMBER_H
 
-const static class ProceduralIDNumber
+const class ProceduralIDNumber
 {
 
 	public:

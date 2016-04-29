@@ -4,7 +4,7 @@
 #ifndef _OBJECTIDNUMBER_H
 #define _OBJECTIDNUMBER_H
 
-const static class ObjectIDNumber
+const class ObjectIDNumber
 {
 
 	public:

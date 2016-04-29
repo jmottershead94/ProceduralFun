@@ -12,7 +12,7 @@ Coursework::Coursework(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
 {
 
 	// Setting the camera position to where we want.
-	m_Camera->SetPosition(30.0f, 10.0f, -100.0f);
+	m_Camera->SetPosition(10.0f, 10.0f, -100.0f);
 
 	// Setting the camera rotation to how we want to start looking at the scene.
 	m_Camera->SetRotation(10.0f, 25.0f, 0.0f);

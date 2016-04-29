@@ -331,10 +331,10 @@
     <FxCompile Include="..\shaders\base_perlin_noise.hlsl">
       <Filter>Source Files\Shaders\shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\shaders\burning_sun_ps.hlsl">
+    <FxCompile Include="..\shaders\pulsing_planet_ps.hlsl">
       <Filter>Source Files\Shaders\shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\shaders\burning_sun_vs.hlsl">
+    <FxCompile Include="..\shaders\pulsing_planet_vs.hlsl">
       <Filter>Source Files\Shaders\shaders</Filter>
     </FxCompile>
   </ItemGroup>

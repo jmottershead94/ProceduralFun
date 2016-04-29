@@ -179,10 +179,10 @@
     <FxCompile Include="..\shaders\boxBlur_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="..\shaders\burning_sun_ps.hlsl">
+    <FxCompile Include="..\shaders\pulsing_planet_ps.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
-    <FxCompile Include="..\shaders\burning_sun_vs.hlsl">
+    <FxCompile Include="..\shaders\pulsing_planet_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\shaders\depth_ps.hlsl">
