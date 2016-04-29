@@ -9,8 +9,8 @@ const class ProceduralIDNumber
 
 	public:
 		// Attributes.
-		const static int SUN = 0;			// If we should process the sun procedurally.
-		const static int FLORA = SUN + 1;	// If we should process our flora procedurally.
+		const static int PLANET = 0;			// If we should process the sun procedurally.
+		const static int FLORA = PLANET + 1;	// If we should process our flora procedurally.
 
 };
 

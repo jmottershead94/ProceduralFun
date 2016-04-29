@@ -111,18 +111,21 @@ float CreateRigidNoise(int octaves, float x, float y)
 
 float4 main(InputType input) : SV_TARGET
 {
+	// Setting up the noise values.
 	float4 textureColour = { 0.0f, 0.0f, 0.0f, 1.0f };
 	float newX = (input.tex.x * 50.0f) + time;							// Processing the x texture coordinate of the texture.
 	float newY = (input.tex.y * 50.0f) + time;							// Processing the y texture coordinate.
 	float perlinNoise = CreatePerlinNoise(6, newX, newY);				// Creating a perlin noise sample.
 	float rigidNoise = (CreateRigidNoise(6, newX, newY) * 0.015f);		// Creating some rigid noise.
 
-	float constantValue = 0.6f;
-	float t1 = InterpolatedNoise(input.tex.x, input.tex.y) - constantValue;
-	float t2 = InterpolatedNoise((input.tex.x + 1.0f), (input.tex.y + 1.0f)) - constantValue;
-	float t3 = InterpolatedNoise((input.tex.x + 2.0f), (input.tex.y + 2.0f)) - constantValue;
-	float threshold = max(t1 * t2 * t3, 0.0f) * 15.0f;
+	// Setting up the pulsing storms.
+	float constantValue = CreateRigidNoise(3, time, time);
+	float t1 = InterpolatedNoise(input.tex.x * 2.0f, input.tex.y * 2.0f) * constantValue;
+	float t2 = InterpolatedNoise(input.tex.x + 800.0f, input.tex.y + 800.0f) * constantValue;
+	float t3 = InterpolatedNoise(input.tex.x + 1600.0f, input.tex.y + 1600.0f) * constantValue;
+	float threshold = max(t1 * t2 * t3, 0.0f) * 50.0f;
 	
+	// Applying the final noise layer.
 	float overallNoise = (CreatePerlinNoise(1, (input.tex.x * 0.1f), (input.tex.y * 0.1f)) * threshold);
 	
 	float index = perlinNoise + rigidNoise + overallNoise;

@@ -20,7 +20,7 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 
 	// Initialising the shaders.
 	m_textureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
-	m_perlinNoiseShader = new PerlinNoiseShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::SUN);
+	m_perlinNoiseShader = new PerlinNoiseShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::PLANET);
 
 	// Sphere rotation.
 	sphereRotation = 0.0f;

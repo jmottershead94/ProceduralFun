@@ -5,7 +5,7 @@ PerlinNoiseShader::PerlinNoiseShader(ID3D11Device* device, HWND hwnd, int proced
 {
 
 	// If we are processing the Sun.
-	if (proceduralIDNumber == ProceduralIDNumber::SUN)
+	if (proceduralIDNumber == ProceduralIDNumber::PLANET)
 	{
 		InitShader(L"../shaders/pulsing_planet_vs.hlsl", L"../shaders/pulsing_planet_ps.hlsl");
 	}
