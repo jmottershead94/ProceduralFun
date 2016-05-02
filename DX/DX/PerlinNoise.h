@@ -13,6 +13,7 @@
 #include <numeric>
 #include <algorithm>
 
+#include <DirectXMath.h>
 
 class PerlinNoise
 {
@@ -23,15 +24,17 @@ class PerlinNoise
 		PerlinNoise(unsigned int seed);
 		~PerlinNoise();
 		double Noise(double x, double y, double z);
+		int SimplexNoise(float x);
 
 	private:
 		// Attributes.
 		std::vector<int> permutations;	// The permutations vector.
 
 		// Methods.
-		double Fade(double cuppa);
-		double Lerp(double cuppa, double a, double b);
+		double Fade(double t);
+		double Lerp(double t, double a, double b);
 		double Gradient(int hash, double x, double y, double z);
+		float Gradient(int hash, float x);
 
 };
 

@@ -10,6 +10,13 @@ cbuffer MatrixBuffer : register(b0)
 	matrix projectionMatrix;
 };
 
+cbuffer GravityBuffer : register(b1)
+{
+	float gravity;
+	float ID;
+	float2 padding;
+};
+
 struct InputType
 {
 	float4 position : POSITION;
@@ -119,12 +126,39 @@ float CreateRigidNoise(int octaves, float x, float y)
 OutputType main(InputType input)
 {
 	OutputType output;
+	float range = 0.5f;
+	float noiseValue = 0.0f;
+	float4 vPosition = { 0.0f, 0.0f, 0.0f, 1.0f };
+	float ID_TREE = 0.0f;
+	float ID_BUSH = ID_TREE + 1.0f;
+	float ID_GRASS = ID_BUSH + 1.0f;
 
 	// Change the position vector to be 4 units for proper matrix calculations.
 	input.position.w = 1.0f;
 
+	// Create a new vertex position based on input position.
+	vPosition = mul(vPosition, worldMatrix) + input.position;
+
+	// Calculating the new noise value from gravity.
+	noiseValue = (InterpolatedNoise((gravity - range), (gravity + range)) * gravity);
+
+	// If the noise value is greater than 0.
+	if (noiseValue > 0.0f)
+	{
+		if (ID == ID_TREE)
+		{
+			// Then divide this new position by a gravity value manipulated by noise.
+			vPosition.z /= noiseValue;
+		}
+		else if (ID == ID_BUSH)
+		{
+			// Then divide this new position by a gravity value manipulated by noise.
+			vPosition.y /= noiseValue;
+		}
+	}
+
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-	output.position = mul(input.position, worldMatrix);
+	output.position = mul(vPosition, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 

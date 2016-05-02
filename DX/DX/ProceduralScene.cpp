@@ -29,6 +29,10 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	// Sphere rotation.
 	sphereRotation = 0.0f;
 	treeRotation = {0.0f, 0.0f, 0.0f};
+	gravityDebug = 0.5f;
+
+	// Initialise the seed for our perlin noise selection.
+	m_perlinNoise = new PerlinNoise();
 
 }
 
@@ -113,6 +117,12 @@ ProceduralScene::~ProceduralScene()
 		m_floraShader = nullptr;
 	}
 
+	if (m_perlinNoise)
+	{
+		delete m_perlinNoise;
+		m_perlinNoise = nullptr;
+	}
+
 }
 
 void ProceduralScene::Controls(float dt)
@@ -129,6 +139,15 @@ void ProceduralScene::Controls(float dt)
 	else if (m_Input->isKeyDown('R'))
 	{
 		treeRotation.z += 0.001f;
+	}
+
+	if (m_Input->isLeftMouseDown())
+	{
+		gravityDebug += 0.01f;
+	}
+	else if (m_Input->isRightMouseDown())
+	{
+		gravityDebug -= 0.01f;
 	}
 
 }
@@ -219,19 +238,20 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 {
 
 	// The new translation, where we want our object to be.
-	XMMATRIX new_transformation = XMMatrixTranslation(15.0f, 0.0f, -50.0f);
-	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(1.5f, 0.0f, 0.0f);
-	XMMATRIX new_scale = XMMatrixScaling(0.25f, 0.25f, 0.25f);
+	XMMATRIX newTransformation = XMMatrixTranslation(15.0f, 0.1f, -50.0f);
+	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(1.5f, 0.0f, 0.0f);
+	XMMATRIX newScale = XMMatrixScaling(0.25f, 0.25f, 0.25f);
 
 	// Multiplying the transformations together.
-	worldMatrix = new_scale;
-	worldMatrix *= new_rotation;
-	worldMatrix *= new_transformation;
+	worldMatrix = newScale;
+	worldMatrix *= newRotation;
+	worldMatrix *= newTransformation;
 
 	// Render the tree.
 	m_tree->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture(), m_Timer);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture(), gravityDebug, ObjectIDNumber::ID_TREE);
+	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_TREE);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_tree->GetIndexCount());
 	
 	// Reset the world matrix.
@@ -243,19 +263,20 @@ void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 {
 
 	// The new translation, where we want our object to be.
-	XMMATRIX new_transformation = XMMatrixTranslation(25.0f, 0.0f, -60.0f);
-	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
-	XMMATRIX new_scale = XMMatrixScaling(0.0625f, 0.0625f, 0.0625f);
+	XMMATRIX newTransformation = XMMatrixTranslation(25.0f, 0.1f, -60.0f);
+	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
+	XMMATRIX newScale = XMMatrixScaling(0.0625f, 0.0625f, 0.0625f);
 
 	// Multiplying the transformations together.
-	worldMatrix = new_scale;
-	worldMatrix *= new_rotation;
-	worldMatrix *= new_transformation;
+	worldMatrix = newScale;
+	worldMatrix *= newRotation;
+	worldMatrix *= newTransformation;
 
-	// Render the tree.
+	// Render the bush.
 	m_shrub->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture(), m_Timer);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture(), gravityDebug, ObjectIDNumber::ID_BUSH);
+	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_BUSH);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_shrub->GetIndexCount());
 
 	// Reset the world matrix.
@@ -279,7 +300,7 @@ void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	// Render the tree.
 	m_grass->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_grass->GetTexture(), m_Timer);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_grass->GetTexture(), 0.25f, ObjectIDNumber::ID_GRASS);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_grass->GetIndexCount());
 
 	// Reset the world matrix.
@@ -290,10 +311,8 @@ void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
 {
 
-	// Rotate the sphere.
-	//SetSphereRotation(0.001f);
+	// Rotate the spheres.
 	sphereRotation += 0.001f;
-	
 
 	// Render our procedurally manipulated sphere.
 	RenderTheFireProceduralSphere(worldMatrix, viewMatrix, projectionMatrix);
@@ -312,6 +331,9 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 
 	// Render the normal sphere.
 	RenderTheLightningSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the tree model.
+	//RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix, m_perlinNoise->Noise(2.00, 1.97, 9.84));
 
 	// Render the tree model.
 	RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix);

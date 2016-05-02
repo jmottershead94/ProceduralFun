@@ -18,15 +18,16 @@ public:
 	FloraShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber);
 	~FloraShader();
 
-	void SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Timer* timer);
+	void SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, float gravity, int ID);
 	void Render(ID3D11DeviceContext* deviceContext, int vertexCount);
 
 private:
 	// Attributes.
-	struct TimeBufferType
+	struct GravityBufferType
 	{
-		float time;
-		XMFLOAT3 padding;
+		float gravity;
+		float ID;
+		XMFLOAT2 padding;
 	};
 
 	// Methods.
@@ -36,7 +37,7 @@ private:
 	float dt;
 	ID3D11Buffer* m_matrixBuffer;
 	ID3D11SamplerState* m_sampleState;
-	ID3D11Buffer* m_timeBuffer;
+	ID3D11Buffer* m_gravityBuffer;
 };
 
 #endif

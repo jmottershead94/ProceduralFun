@@ -346,5 +346,8 @@
     <FxCompile Include="..\shaders\flora_vs.hlsl">
       <Filter>Source Files\Shaders\shaders</Filter>
     </FxCompile>
+    <FxCompile Include="..\shaders\flora_gs.hlsl">
+      <Filter>Source Files\Shaders\shaders</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

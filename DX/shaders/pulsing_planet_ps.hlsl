@@ -28,7 +28,7 @@ float CosineInterpolation(float x, float y, float fractional)
 
 float Noise(float2 xy)
 {
-	float2 noise = (frac(sin(dot(xy, float2(12.9898, 78.233) * 2.0f)) * 43758.5453));
+	float2 noise = (frac(sin(dot(xy, float2(12.9898f, 78.233f) * 2.0f)) * 43758.5453f));
 	return (abs(noise.x + noise.y) * 0.5f);
 }
 

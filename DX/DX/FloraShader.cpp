@@ -40,7 +40,7 @@ void FloraShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
-	D3D11_BUFFER_DESC timeBufferDesc;
+	D3D11_BUFFER_DESC gravityBufferDesc;
 
 	// Load (+ compile) shader files
 	loadVertexShader(vsFilename);
@@ -78,28 +78,28 @@ void FloraShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 	// Setup light buffer
 	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
 	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
-	timeBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	timeBufferDesc.ByteWidth = sizeof(TimeBufferType);
-	timeBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	timeBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	timeBufferDesc.MiscFlags = 0;
-	timeBufferDesc.StructureByteStride = 0;
+	gravityBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	gravityBufferDesc.ByteWidth = sizeof(GravityBufferType);
+	gravityBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	gravityBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	gravityBufferDesc.MiscFlags = 0;
+	gravityBufferDesc.StructureByteStride = 0;
 
 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	m_device->CreateBuffer(&timeBufferDesc, NULL, &m_timeBuffer);
+	m_device->CreateBuffer(&gravityBufferDesc, NULL, &m_gravityBuffer);
 }
 
-void FloraShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Timer* timer)
+void FloraShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, float gravity, int ID)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
-	TimeBufferType* timePtr;
+	GravityBufferType* gravityPtr;
 	unsigned int bufferNumber;
 	XMMATRIX tworld, tview, tproj;
 
 	// Incrementing the dt to make the shape move.
-	dt += timer->GetTime();
+	//dt += timer->GetTime();
 
 	// Transpose the matrices to prepare them for the shader.
 	tworld = XMMatrixTranspose(worldMatrix);
@@ -130,19 +130,20 @@ void FloraShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const 
 	deviceContext->PSSetShaderResources(0, 1, &texture);
 
 	// Setting up the time pointer values.
-	deviceContext->Map(m_timeBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-	timePtr = (TimeBufferType*)mappedResource.pData;
-	timePtr->time = dt;
-	timePtr->padding = { 0.0f, 0.0f, 0.0f };
+	deviceContext->Map(m_gravityBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	gravityPtr = (GravityBufferType*)mappedResource.pData;
+	gravityPtr->gravity = gravity;
+	gravityPtr->ID = ID;
+	gravityPtr->padding = { 0.0f, 0.0f };
 
 	// Unlock the buffer.
-	deviceContext->Unmap(m_timeBuffer, 0);
+	deviceContext->Unmap(m_gravityBuffer, 0);
 
 	// Set the buffer number.
-	bufferNumber = 0;
+	bufferNumber = 1;
 
-	// Set the constant buffer in the pixel shader.
-	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_timeBuffer);
+	// Set the constant buffer in the vertex shader.
+	deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_gravityBuffer);
 }
 
 void FloraShader::Render(ID3D11DeviceContext* deviceContext, int indexCount)

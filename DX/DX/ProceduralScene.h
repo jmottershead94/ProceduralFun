@@ -27,6 +27,11 @@
 #include "PulsingPlanetShader.h"
 #include "FloraShader.h"
 
+// Perlin Noise.
+#include "PerlinNoise.h"
+
+#include "ObjectIDNumber.h"
+
 class ProceduralScene : public BaseScene
 {
 
@@ -46,6 +51,7 @@ class ProceduralScene : public BaseScene
 		// Standard.
 		float sphereRotation;
 		XMFLOAT3 treeRotation;
+		float gravityDebug;
 
 		// Geometry.
 		SphereMesh* m_proceduralFireSphereMesh;			// The sphere mesh that we will be applying the perlin noise texture to.
@@ -62,6 +68,9 @@ class ProceduralScene : public BaseScene
 		TextureShader* m_textureShader;				// This will be used to show off the original texture.
 		PulsingPlanetShader* m_perlinNoiseShader;	// The shader that handles perlin noise processing.
 		FloraShader* m_floraShader;					// This shader will handle the procedurally generated flora.
+
+		// Perlin Noise.
+		PerlinNoise* m_perlinNoise;
 
 	private:
 		// Methods.
