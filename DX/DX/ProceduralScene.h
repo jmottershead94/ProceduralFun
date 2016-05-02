@@ -35,6 +35,7 @@ class ProceduralScene : public BaseScene
 		ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D3D* direct3D, Input* in, Camera* cam, Timer* timer);
 		~ProceduralScene();
 		void RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+		void Controls(float dt);
 
 		// Setters.
 		// Setting the current sphere rotation.
@@ -44,6 +45,7 @@ class ProceduralScene : public BaseScene
 		// Attributes.
 		// Standard.
 		float sphereRotation;
+		XMFLOAT3 treeRotation;
 
 		// Geometry.
 		SphereMesh* m_proceduralFireSphereMesh;			// The sphere mesh that we will be applying the perlin noise texture to.

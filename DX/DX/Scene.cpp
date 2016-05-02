@@ -214,6 +214,8 @@ Scene::~Scene()
 //////////////////////////////////////////////////////////
 void Scene::Controls(float dt)
 {
+	m_proceduralScene->Controls(dt);
+
 	// Terrain Light controls.
 	if (m_Input->isKeyDown(VK_NUMPAD6))
 	{

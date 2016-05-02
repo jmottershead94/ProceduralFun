@@ -28,6 +28,7 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 
 	// Sphere rotation.
 	sphereRotation = 0.0f;
+	treeRotation = {0.0f, 0.0f, 0.0f};
 
 }
 
@@ -110,6 +111,24 @@ ProceduralScene::~ProceduralScene()
 	{
 		delete m_floraShader;
 		m_floraShader = nullptr;
+	}
+
+}
+
+void ProceduralScene::Controls(float dt)
+{
+
+	if (m_Input->isKeyDown('P'))
+	{
+		treeRotation.x += 0.001f;
+	}
+	else if (m_Input->isKeyDown('Y'))
+	{
+		treeRotation.y += 0.001f;
+	}
+	else if (m_Input->isKeyDown('R'))
+	{
+		treeRotation.z += 0.001f;
 	}
 
 }
@@ -201,8 +220,8 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 
 	// The new translation, where we want our object to be.
 	XMMATRIX new_transformation = XMMatrixTranslation(15.0f, 0.0f, -50.0f);
-	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(80.0f, 0.0f, 0.0f);
-	XMMATRIX new_scale = XMMatrixScaling(0.25f, 0.25f, -0.25f);
+	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(1.5f, 0.0f, 0.0f);
+	XMMATRIX new_scale = XMMatrixScaling(0.25f, 0.25f, 0.25f);
 
 	// Multiplying the transformations together.
 	worldMatrix = new_scale;
@@ -272,7 +291,9 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 {
 
 	// Rotate the sphere.
-	SetSphereRotation(0.001f);
+	//SetSphereRotation(0.001f);
+	sphereRotation += 0.001f;
+	
 
 	// Render our procedurally manipulated sphere.
 	RenderTheFireProceduralSphere(worldMatrix, viewMatrix, projectionMatrix);
