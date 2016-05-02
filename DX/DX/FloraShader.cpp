@@ -1,22 +1,15 @@
-// texture shader.cpp
-#include "PerlinNoiseShader.h"
+// Flora shader .cpp
+#include "FloraShader.h"
 
-PerlinNoiseShader::PerlinNoiseShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber) : BaseShader(device, hwnd)
+FloraShader::FloraShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber) : BaseShader(device, hwnd)
 {
 
-	// If we are processing the Sun.
-	if (proceduralIDNumber == ProceduralIDNumber::PLANET)
-	{
-		InitShader(L"../shaders/pulsing_planet_vs.hlsl", L"../shaders/pulsing_planet_ps.hlsl");
-	}
-	else if (proceduralIDNumber == ProceduralIDNumber::FLORA)
-	{
-		InitShader(L"../shaders/perlin_noise_vs.hlsl", L"../shaders/perlin_noise_ps.hlsl");
-	}
-	
+	// Load our shader files.
+	InitShader(L"../shaders/flora_vs.hlsl", L"../shaders/flora_ps.hlsl");
+
 }
 
-PerlinNoiseShader::~PerlinNoiseShader()
+FloraShader::~FloraShader()
 {
 	// Release the sampler state.
 	if (m_sampleState)
@@ -43,7 +36,7 @@ PerlinNoiseShader::~PerlinNoiseShader()
 	BaseShader::~BaseShader();
 }
 
-void PerlinNoiseShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
+void FloraShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 {
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_SAMPLER_DESC samplerDesc;
@@ -96,7 +89,7 @@ void PerlinNoiseShader::InitShader(WCHAR* vsFilename, WCHAR* psFilename)
 	m_device->CreateBuffer(&timeBufferDesc, NULL, &m_timeBuffer);
 }
 
-void PerlinNoiseShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Timer* timer)
+void FloraShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &worldMatrix, const XMMATRIX &viewMatrix, const XMMATRIX &projectionMatrix, ID3D11ShaderResourceView* texture, Timer* timer)
 {
 	HRESULT result;
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -152,7 +145,7 @@ void PerlinNoiseShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, 
 	deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_timeBuffer);
 }
 
-void PerlinNoiseShader::Render(ID3D11DeviceContext* deviceContext, int indexCount)
+void FloraShader::Render(ID3D11DeviceContext* deviceContext, int indexCount)
 {
 	// Set the sampler state in the pixel shader.
 	deviceContext->PSSetSamplers(0, 1, &m_sampleState);

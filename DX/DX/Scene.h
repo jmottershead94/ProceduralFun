@@ -33,7 +33,7 @@
 #include "ParticleShader.h"
 #include "MasterShadowShader.h"
 #include "MasterShader.h"
-#include "PerlinNoiseShader.h"
+#include "PulsingPlanetShader.h"
 
 // Scenes.
 #include "ProceduralScene.h"

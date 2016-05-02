@@ -23,7 +23,8 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 
 	// Initialising the shaders.
 	m_textureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
-	m_perlinNoiseShader = new PerlinNoiseShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::PLANET);
+	m_perlinNoiseShader = new PulsingPlanetShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::PLANET);
+	m_floraShader = new FloraShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::FLORA);
 
 	// Sphere rotation.
 	sphereRotation = 0.0f;
@@ -103,6 +104,12 @@ ProceduralScene::~ProceduralScene()
 	{
 		delete m_perlinNoiseShader;
 		m_perlinNoiseShader = nullptr;
+	}
+
+	if (m_floraShader)
+	{
+		delete m_floraShader;
+		m_floraShader = nullptr;
 	}
 
 }
@@ -205,8 +212,8 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 	// Render the tree.
 	m_tree->SendData(m_Direct3D->GetDeviceContext());
 
-	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture());
-	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_tree->GetIndexCount());
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture(), m_Timer);
+	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_tree->GetIndexCount());
 	
 	// Reset the world matrix.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
@@ -229,8 +236,8 @@ void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	// Render the tree.
 	m_shrub->SendData(m_Direct3D->GetDeviceContext());
 
-	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture());
-	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_shrub->GetIndexCount());
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture(), m_Timer);
+	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_shrub->GetIndexCount());
 
 	// Reset the world matrix.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
@@ -241,20 +248,20 @@ void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 {
 
 	// The new translation, where we want our object to be.
-	XMMATRIX new_transformation = XMMatrixTranslation(0.0f, 5.0f, -50.0f);
-	/*XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
-	XMMATRIX new_scale = XMMatrixScaling(5.0f, 5.0f, 5.0f);*/
+	XMMATRIX new_transformation = XMMatrixTranslation(35.0f, 0.0f, -60.0f);
+	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
+	XMMATRIX new_scale = XMMatrixScaling(1.0f, 1.0f, 1.0f);
 
 	// Multiplying the transformations together.
-	/*worldMatrix = new_scale;
-	worldMatrix *= new_rotation;*/
-	worldMatrix = new_transformation;
+	worldMatrix = new_scale;
+	worldMatrix *= new_rotation;
+	worldMatrix *= new_transformation;
 
 	// Render the tree.
 	m_grass->SendData(m_Direct3D->GetDeviceContext());
 
-	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_grass->GetTexture());
-	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_grass->GetIndexCount());
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_grass->GetTexture(), m_Timer);
+	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_grass->GetIndexCount());
 
 	// Reset the world matrix.
 	m_Direct3D->GetWorldMatrix(worldMatrix);

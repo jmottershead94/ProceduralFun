@@ -1,6 +1,6 @@
 // Jason Mottershead, 1300455.
 
-// Perlin noise texture vertex shader
+// Perlin noise flora vertex shader
 // Basic shader for rendering textured geometry
 
 cbuffer MatrixBuffer : register(b0)

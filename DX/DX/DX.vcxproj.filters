@@ -138,11 +138,14 @@
     <ClCompile Include="NoisePlane.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="PerlinNoiseShader.cpp">
-      <Filter>Source Files\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="ProceduralScene.cpp">
       <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="PulsingPlanetShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="FloraShader.cpp">
+      <Filter>Source Files\Shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -245,9 +248,6 @@
     <ClInclude Include="NoisePlane.h">
       <Filter>Source Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="PerlinNoiseShader.h">
-      <Filter>Source Files\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="ProceduralScene.h">
       <Filter>Source Files\Scenes</Filter>
     </ClInclude>
@@ -256,6 +256,12 @@
     </ClInclude>
     <ClInclude Include="ProceduralIDNumber.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PulsingPlanetShader.h">
+      <Filter>Source Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="FloraShader.h">
+      <Filter>Source Files\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

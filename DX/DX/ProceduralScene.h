@@ -24,7 +24,8 @@
 
 // Shaders.
 #include "TextureShader.h"
-#include "PerlinNoiseShader.h"
+#include "PulsingPlanetShader.h"
+#include "FloraShader.h"
 
 class ProceduralScene : public BaseScene
 {
@@ -57,8 +58,9 @@ class ProceduralScene : public BaseScene
 
 		// Shaders.
 		TextureShader* m_textureShader;				// This will be used to show off the original texture.
-		PerlinNoiseShader* m_perlinNoiseShader;		// The shader that handles perlin noise processing.
-		
+		PulsingPlanetShader* m_perlinNoiseShader;	// The shader that handles perlin noise processing.
+		FloraShader* m_floraShader;					// This shader will handle the procedurally generated flora.
+
 	private:
 		// Methods.
 		void ProcessSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, XMFLOAT3 position, SphereMesh* sphereMesh, bool isProcedural);

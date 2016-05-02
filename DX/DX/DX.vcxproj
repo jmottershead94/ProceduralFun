@@ -89,6 +89,7 @@
   <ItemGroup>
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="BaseMesh.cpp" />
+    <ClCompile Include="FloraShader.cpp" />
     <ClCompile Include="ProceduralScene.cpp" />
     <ClCompile Include="BaseScene.cpp" />
     <ClCompile Include="BaseShader.cpp" />
@@ -106,7 +107,7 @@
     <ClCompile Include="ParticleSystem.cpp" />
     <ClCompile Include="ParticleShader.cpp" />
     <ClCompile Include="PerlinNoise.cpp" />
-    <ClCompile Include="PerlinNoiseShader.cpp" />
+    <ClCompile Include="PulsingPlanetShader.cpp" />
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Scene.cpp" />
@@ -127,6 +128,7 @@
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="BaseMesh.h" />
+    <ClInclude Include="FloraShader.h" />
     <ClInclude Include="ObjectIDNumber.h" />
     <ClInclude Include="ProceduralIDNumber.h" />
     <ClInclude Include="ProceduralScene.h" />
@@ -145,7 +147,7 @@
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="ParticleShader.h" />
     <ClInclude Include="PerlinNoise.h" />
-    <ClInclude Include="PerlinNoiseShader.h" />
+    <ClInclude Include="PulsingPlanetShader.h" />
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Scene.h" />
