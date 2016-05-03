@@ -17,10 +17,10 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	m_normalWaterSphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/cool_water.jpg", 20);
 	m_proceduralLightningSphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/lightning.jpg", 20);
 	m_normalLightningSphereMesh = new SphereMesh(m_Direct3D->GetDevice(), L"../res/lightning.jpg", 20);
-	m_tree = new Model(m_Direct3D->GetDevice(), L"../res/tree_tex.png", L"../res/Models/tree.obj");
-	m_shrub = new Model(m_Direct3D->GetDevice(), L"../res/grassTexture.png", L"../res/Models/bush.obj");
-	//m_grass = new Model(m_Direct3D->GetDevice(), L"../res/grassTexture.png", L"../res/Models/grass.obj");
-
+	m_tree = new Model(m_Direct3D->GetDevice(), L"../res/newTreeTexture.dds", L"../res/Models/new_tree.obj");
+	m_shrub = new Model(m_Direct3D->GetDevice(), L"../res/bushTexture.png", L"../res/Models/bush.obj");
+	m_grass = new Model(m_Direct3D->GetDevice(), L"../res/grassTexture.dds", L"../res/Models/bush.obj");
+	
 	// Initialising the shaders.
 	m_textureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
 	m_perlinNoiseShader = new PulsingPlanetShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::PLANET);
@@ -39,8 +39,9 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	for (int i = 0; i < 2; i++)
 	{
 		// Initialise the procedurally generated flora.
-		InitialiseFlora(XMFLOAT3(0.0f, 0.0f, i * 12.5f));
+		InitialiseFlora(XMFLOAT3(0.0f, 0.0f, i * -12.5f));
 	}
+
 }
 
 //////////////////////////////////////////////////////////
@@ -142,25 +143,32 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 		return;
 	}
 
-	int signChanger = -1;
+	const int signChanger = -1;
 	bool changeSign = false;
 	XMFLOAT3 floraTranslation = { 0.0f, 0.0f, 0.0f };
 
 	for (float i = 0.0f; i < 1.0f; (i += (1.0f / MAX_AMOUNT_OF_FLORA_PER_PATCH)))
 	{
+		// Randomly deciding on a sign change value for translations.
 		int randomval = rand() % 2;
-		//int randomval = m_simplexNoise->noise(i) * 2.0f;
 		changeSign = randomval;
 
-		noiseIDValue = m_simplexNoise->noise(i * 0.5f) * ObjectIDNumber::ID_GRASS;
+		// Calculating the current flora ID number.
+		noiseIDValue = m_simplexNoise->noise(i) * (ObjectIDNumber::ID_GRASS + 2);
 
-		floraTranslation = XMFLOAT3((m_simplexNoise->noise(i) * 100.0f) + newStartPosition.x, newStartPosition.y, (m_simplexNoise->noise(i) * 12.5f) + newStartPosition.z);
+		// Calculating the next flora translation value base on noise.
+		floraTranslation = XMFLOAT3((m_simplexNoise->noise(i) * 50.0f) + newStartPosition.x, newStartPosition.y, (m_simplexNoise->noise(i)) + newStartPosition.z);
 
+		// If we should change the sign for our values.
 		if (changeSign)
 		{
+			// Reverse the z value so that we can create a more forest like feel.
 			floraTranslation.z *= signChanger;
+
+			// We no longer need to change the sign.
 			changeSign = false;
 		}
+
 
 		if (noiseIDValue == ObjectIDNumber::ID_TREE)
 		{
@@ -175,6 +183,9 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 		}
 		else if (noiseIDValue == ObjectIDNumber::ID_BUSH)
 		{
+			// Adjusting the x translation value to make even spacing for all bushes.
+			floraTranslation.x *= 2.0f;
+
 			// Place in the current ID value.
 			m_floraID.push_back(noiseIDValue);
 
@@ -186,7 +197,25 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 		}
 		else if (noiseIDValue == ObjectIDNumber::ID_GRASS)
 		{
-			//m_floraModels.push_back();
+			// Place in the current ID value.
+			m_floraID.push_back(noiseIDValue);
+
+			// Where this flora will be placed.
+			m_floraTranslations.push_back(floraTranslation);
+
+			// Place in grass into the vector.
+			m_floraModels.push_back(m_grass);
+		}
+		else
+		{
+			// Place in the current ID value.
+			m_floraID.push_back(ObjectIDNumber::ID_GRASS);
+
+			// Where this flora will be placed.
+			m_floraTranslations.push_back(floraTranslation);
+
+			// Place in grass into the vector.
+			m_floraModels.push_back(m_grass);
 		}
 	}
 
@@ -252,10 +281,10 @@ void ProceduralScene::Controls(float dt)
 	if (m_Input->isKeyDown(VK_INSERT))
 	{
 		// Calculate a random value between 0 - 75.
-		int randomval = rand() % 75;
+		int randomval = rand() % 50;
 
 		// Initialise a new patch of procedurally generated flora at randomly assigned positions.
-		InitialiseFlora(XMFLOAT3(randomval, 0.0f, randomval));
+		InitialiseFlora(XMFLOAT3(randomval, 0.0f, randomval * 0.5f));
 	}
 	else if (m_Input->isKeyDown(VK_DELETE))
 	{
@@ -367,6 +396,12 @@ void ProceduralScene::ProcessFlora(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, 
 			// Render the bush model.
 			RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i]);
 		}
+		// Otherwise, if we have bush model in our model vector.
+		else if (m_floraID[i] == ObjectIDNumber::ID_GRASS)
+		{
+			// Render the grass model.
+			RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i]);
+		}
 	}
 
 }
@@ -401,8 +436,8 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 
 	// The new translation, where we want our object to be.
 	XMMATRIX newTransformation = XMMatrixTranslation(translation.x, translation.y, translation.z);
-	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(1.5f, 0.0f, 0.0f);
-	XMMATRIX newScale = XMMatrixScaling(0.25f, 0.25f, 0.25f);
+	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
+	XMMATRIX newScale = XMMatrixScaling(5.0f, 5.0f, 5.0f);
 
 	// Multiplying the transformations together.
 	worldMatrix = newScale;
@@ -438,7 +473,7 @@ void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	shrubModel->SendData(m_Direct3D->GetDeviceContext());
 
 	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, shrubModel->GetTexture(), gravityDebug, ObjectIDNumber::ID_BUSH);
-	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_BUSH);
+	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, shrubModel->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_BUSH);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), shrubModel->GetIndexCount());
 
 	// Reset the world matrix.
@@ -446,13 +481,14 @@ void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 
 }
 
-void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* grassModel, XMFLOAT3 translation)
 {
 
 	// The new translation, where we want our object to be.
-	XMMATRIX new_transformation = XMMatrixTranslation(35.0f, 0.0f, -60.0f);
-	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
-	XMMATRIX new_scale = XMMatrixScaling(1.0f, 1.0f, 1.0f);
+	XMMATRIX new_transformation = XMMatrixTranslation(translation.x, translation.y, translation.z);
+	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
+	XMMATRIX new_scale = XMMatrixScaling(0.0125f, 0.00675f, 0.0125f);
+	//XMMATRIX new_scale = XMMatrixScaling(0.125f, 0.125f, 0.125f);
 
 	// Multiplying the transformations together.
 	worldMatrix = new_scale;
@@ -460,10 +496,10 @@ void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	worldMatrix *= new_transformation;
 
 	// Render the tree.
-	m_grass->SendData(m_Direct3D->GetDeviceContext());
+	grassModel->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_grass->GetTexture(), 0.25f, ObjectIDNumber::ID_GRASS);
-	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_grass->GetIndexCount());
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, grassModel->GetTexture(), gravityDebug, ObjectIDNumber::ID_GRASS);
+	m_floraShader->Render(m_Direct3D->GetDeviceContext(), grassModel->GetIndexCount());
 
 	// Reset the world matrix.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
@@ -507,6 +543,6 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 	//RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Render the grass model.
-	//RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix, m_grass, XMFLOAT3(0.0f, 0.0f, -75.0f));
 
 }

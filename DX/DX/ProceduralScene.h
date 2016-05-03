@@ -71,6 +71,7 @@ class ProceduralScene : public BaseScene
 		Model* m_tree;
 		Model* m_shrub;
 		Model* m_grass;
+		Model* m_NOTGRASS;
 		vector<Model*> m_floraModels;
 		vector<XMFLOAT3> m_floraTranslations;
 		vector<int> m_floraID;
@@ -99,7 +100,7 @@ class ProceduralScene : public BaseScene
 		void RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* floraModel, XMFLOAT3 translation, int IDNumber);
 		void RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation);
 		void RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation);
-		void RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+		void RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* grassModel, XMFLOAT3 translation);
 };
 
 #endif
