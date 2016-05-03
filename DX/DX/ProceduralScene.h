@@ -44,7 +44,7 @@ class ProceduralScene : public BaseScene
 		~ProceduralScene();
 		void RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void Controls(float dt);
-		void InitialiseFlora(XMFLOAT3 newStartPosition);
+		
 
 		// Setters.
 		// Setting the current sphere rotation.
@@ -85,6 +85,8 @@ class ProceduralScene : public BaseScene
 
 	private:
 		// Methods.
+		void InitialiseFlora(XMFLOAT3 newStartPosition);
+		void RemoveFlora();
 		void ProcessSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, XMFLOAT3 position, SphereMesh* sphereMesh, bool isProcedural);
 		void RenderTheFireProceduralSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheFireSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);

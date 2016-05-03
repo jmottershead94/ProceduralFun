@@ -139,7 +139,7 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 	bool changeSign = false;
 	XMFLOAT3 floraTranslation = { 0.0f, 0.0f, 0.0f };
 
-	for (float i = 0.0f; i < ((float)MAX_AMOUNT_OF_FLORA / (float)MAX_AMOUNT_OF_FLORA); (i += (1.0f / MAX_AMOUNT_OF_FLORA)))
+	for (float i = 0.0f; i < 1.0f; (i += (1.0f / MAX_AMOUNT_OF_FLORA)))
 	{
 		int randomval = rand() % 2;
 		//int randomval = m_simplexNoise->noise(i) * 2.0f;
@@ -185,6 +185,49 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 
 }
 
+void ProceduralScene::RemoveFlora()
+{
+
+	// Loop through the latest patch of flora.
+	for (int i = 0; i < MAX_AMOUNT_OF_FLORA; i++)
+	{
+		std::vector<Model*>::iterator modelIndex = m_floraModels.begin() + i;
+		std::vector<XMFLOAT3>::iterator translationIndex = m_floraTranslations.begin() + i;
+		std::vector<int>::iterator idIndex = m_floraID.begin() + i;
+
+		if (m_floraModels.size() > MAX_AMOUNT_OF_FLORA)
+		{
+			m_floraModels.erase(modelIndex);
+		}
+
+		if (m_floraTranslations.size() > MAX_AMOUNT_OF_FLORA)
+		{
+			m_floraTranslations.erase(translationIndex);
+		}
+
+		if (m_floraID.size() > MAX_AMOUNT_OF_FLORA)
+		{
+			m_floraID.erase(idIndex);
+		}
+
+		/*if (modelIndex > m_floraModels.begin() + MAX_AMOUNT_OF_FLORA)
+		{
+			m_floraModels.erase(modelIndex);
+		}
+
+		if (translationIndex > m_floraTranslations.begin() + MAX_AMOUNT_OF_FLORA)
+		{
+			m_floraTranslations.erase(translationIndex);
+		}
+
+		if (idIndex > m_floraID.begin() + MAX_AMOUNT_OF_FLORA)
+		{
+			m_floraID.erase(idIndex);
+		}*/
+	}
+
+}
+
 void ProceduralScene::Controls(float dt)
 {
 
@@ -218,6 +261,11 @@ void ProceduralScene::Controls(float dt)
 
 		// Initialise a new patch of procedurally generated flora at randomly assigned positions.
 		InitialiseFlora(XMFLOAT3(randomval, 0.0f, randomval));
+	}
+	else if (m_Input->isKeyDown(VK_DELETE))
+	{
+		// Remove the last patch of procedurally generated flora.
+		RemoveFlora();
 	}
 
 }
