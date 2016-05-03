@@ -9,6 +9,8 @@
 #define _PROCEDURALSCENE_H
 
 // Includes
+#include <time.h>
+
 // DirectX.
 #include "d3d.h"
 

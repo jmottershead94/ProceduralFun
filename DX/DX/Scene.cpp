@@ -680,8 +680,8 @@ void Scene::RenderTheScene(float dt)
 {
 
 	// Post processing/Multi-pass rendering.
-	RenderToShadowTexture();
-	RenderToMiniMap();
+	//RenderToShadowTexture();
+	//RenderToMiniMap();
 	RenderToTextureBlur();
 
 	XMMATRIX worldMatrix, baseViewMatrix, viewMatrix, projectionMatrix, orthoMatrix;
@@ -701,7 +701,7 @@ void Scene::RenderTheScene(float dt)
 	Controls(dt);
 
 	// Rendering a teapot model.
-	RenderTheModel(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheModel(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering a plane mesh.
 	RenderTheFloor(worldMatrix, viewMatrix, projectionMatrix);	
@@ -713,10 +713,10 @@ void Scene::RenderTheScene(float dt)
 	RenderTheShadowPointLights(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering the terrain.
-	RenderTheTerrain(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheTerrain(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering the wavey water.
-	RenderTheWater(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheWater(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering the particles.
 	//RenderTheParticles(worldMatrix, viewMatrix, projectionMatrix);

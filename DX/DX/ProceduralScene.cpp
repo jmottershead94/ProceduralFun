@@ -34,13 +34,26 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	// Initialise the seed for our perlin noise selection.
 	m_perlinNoise = new PerlinNoise();
 	m_simplexNoise = new SimplexNoise(1.0f, 1.0f, 2.0f, 0.5f);
+	int signChanger = -1;
+	bool changeSign = false;
+	srand(time(0));
 	
 	XMFLOAT3 floraTranslation = {0.0f, 0.0f, 0.0f};
 
 	for (float i = 0.0f; i < ((float)MAX_AMOUNT_OF_FLORA / (float)MAX_AMOUNT_OF_FLORA); (i += (1.0f / MAX_AMOUNT_OF_FLORA)))
 	{
+		int randomval = rand() % 2;
+		//int randomval = m_simplexNoise->noise(i) * 2.0f;
+		changeSign = randomval;
+
 		noiseIDValue = m_simplexNoise->noise(i * 0.5f) * ObjectIDNumber::ID_GRASS;
-		floraTranslation = XMFLOAT3(i * 100.0f, 0.0f, m_simplexNoise->noise(i) * -100.0f);
+		floraTranslation = XMFLOAT3(m_simplexNoise->noise(i) * 100.0f, 0.0f, m_simplexNoise->noise(i) * 25.0f);
+
+		if (changeSign)
+		{
+			floraTranslation.z *= signChanger;
+			changeSign = false;
+		}
 
 		if (noiseIDValue == ObjectIDNumber::ID_TREE)
 		{
