@@ -39,7 +39,7 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	for (int i = 0; i < 2; i++)
 	{
 		// Initialise the procedurally generated flora.
-		InitialiseFlora(XMFLOAT3(0.0f, 0.0f, i * 25.0f));
+		InitialiseFlora(XMFLOAT3(0.0f, 0.0f, i * 12.5f));
 	}
 }
 
@@ -135,11 +135,18 @@ ProceduralScene::~ProceduralScene()
 void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 {
 
+	// If we are already over the max flora limit.
+	if (m_floraModels.size() > MAX_AMOUNT_OF_FLORA)
+	{
+		// Return from this function.
+		return;
+	}
+
 	int signChanger = -1;
 	bool changeSign = false;
 	XMFLOAT3 floraTranslation = { 0.0f, 0.0f, 0.0f };
 
-	for (float i = 0.0f; i < 1.0f; (i += (1.0f / MAX_AMOUNT_OF_FLORA)))
+	for (float i = 0.0f; i < 1.0f; (i += (1.0f / MAX_AMOUNT_OF_FLORA_PER_PATCH)))
 	{
 		int randomval = rand() % 2;
 		//int randomval = m_simplexNoise->noise(i) * 2.0f;
@@ -147,7 +154,7 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 
 		noiseIDValue = m_simplexNoise->noise(i * 0.5f) * ObjectIDNumber::ID_GRASS;
 
-		floraTranslation = XMFLOAT3((m_simplexNoise->noise(i) * 100.0f) + newStartPosition.x, newStartPosition.y, (m_simplexNoise->noise(i) * 25.0f) + newStartPosition.z);
+		floraTranslation = XMFLOAT3((m_simplexNoise->noise(i) * 100.0f) + newStartPosition.x, newStartPosition.y, (m_simplexNoise->noise(i) * 12.5f) + newStartPosition.z);
 
 		if (changeSign)
 		{
@@ -189,41 +196,29 @@ void ProceduralScene::RemoveFlora()
 {
 
 	// Loop through the latest patch of flora.
-	for (int i = 0; i < MAX_AMOUNT_OF_FLORA; i++)
+	for (int i = 0; i < MAX_AMOUNT_OF_FLORA_PER_PATCH; i++)
 	{
+		// Assigning the current iterator index value for each of the flora vectors.
 		std::vector<Model*>::iterator modelIndex = m_floraModels.begin() + i;
 		std::vector<XMFLOAT3>::iterator translationIndex = m_floraTranslations.begin() + i;
 		std::vector<int>::iterator idIndex = m_floraID.begin() + i;
 
-		if (m_floraModels.size() > MAX_AMOUNT_OF_FLORA)
+		// If we have the more than the minimum amount of the flora specified.
+		if (m_floraModels.size() > MAX_AMOUNT_OF_FLORA_PER_PATCH)
 		{
+			// Erase the current iterator index for this vector.
 			m_floraModels.erase(modelIndex);
 		}
 
-		if (m_floraTranslations.size() > MAX_AMOUNT_OF_FLORA)
+		if (m_floraTranslations.size() > MAX_AMOUNT_OF_FLORA_PER_PATCH)
 		{
 			m_floraTranslations.erase(translationIndex);
 		}
 
-		if (m_floraID.size() > MAX_AMOUNT_OF_FLORA)
+		if (m_floraID.size() > MAX_AMOUNT_OF_FLORA_PER_PATCH)
 		{
 			m_floraID.erase(idIndex);
 		}
-
-		/*if (modelIndex > m_floraModels.begin() + MAX_AMOUNT_OF_FLORA)
-		{
-			m_floraModels.erase(modelIndex);
-		}
-
-		if (translationIndex > m_floraTranslations.begin() + MAX_AMOUNT_OF_FLORA)
-		{
-			m_floraTranslations.erase(translationIndex);
-		}
-
-		if (idIndex > m_floraID.begin() + MAX_AMOUNT_OF_FLORA)
-		{
-			m_floraID.erase(idIndex);
-		}*/
 	}
 
 }

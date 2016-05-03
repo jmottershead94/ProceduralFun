@@ -53,7 +53,8 @@ class ProceduralScene : public BaseScene
 	protected:
 		// Attributes.
 		// Standard.
-		const int MAX_AMOUNT_OF_FLORA = 32;
+		const int MAX_AMOUNT_OF_FLORA = 256;
+		const int MAX_AMOUNT_OF_FLORA_PER_PATCH = 32;
 		float sphereRotation;
 		XMFLOAT3 treeRotation;
 		float gravityDebug;
