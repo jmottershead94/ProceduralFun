@@ -781,7 +781,6 @@ void ProceduralScene::RenderTheGround(XMMATRIX& worldMatrix, XMMATRIX& viewMatri
 
 void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
 {
-	RenderToTexture(dt);
 
 	XMMATRIX orthoMatrix, baseViewMatrix;
 
@@ -815,8 +814,8 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 	// If we want to use gaussian blur.
 	if (m_activateGaussianBlur)
 	{
-		//RenderToTexture(dt);				// Render scene to texture / render target
-		
+		// Render the scene our render texture.
+		RenderToTexture(dt);
 
 		// Apply gaussian blur.
 		RenderGaussianBlur();
