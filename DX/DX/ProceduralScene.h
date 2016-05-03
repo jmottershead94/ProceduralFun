@@ -23,6 +23,7 @@
 // Geometry.
 #include "SphereMesh.h"
 #include "Model.h"
+#include "PlaneMesh.h"
 
 // Shaders.
 #include "TextureShader.h"
@@ -45,7 +46,6 @@ class ProceduralScene : public BaseScene
 		void RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void Controls(float dt);
 		
-
 		// Setters.
 		// Setting the current sphere rotation.
 		inline void SetSphereRotation(float rotation) { sphereRotation += rotation; }
@@ -71,7 +71,8 @@ class ProceduralScene : public BaseScene
 		Model* m_tree;
 		Model* m_shrub;
 		Model* m_grass;
-		
+		PlaneMesh* m_planeMesh;							// The plane mesh for providing a floor to the forest.
+
 
 		// Shaders.
 		TextureShader* m_textureShader;				// This will be used to show off the original texture.
@@ -104,6 +105,8 @@ class ProceduralScene : public BaseScene
 		void RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation, float patchGravityValue);
 		void RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation, float patchGravityValue);
 		void RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* grassModel, XMFLOAT3 translation, float patchGravityValue);
+		void RenderTheGround(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+
 };
 
 #endif

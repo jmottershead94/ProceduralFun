@@ -20,7 +20,8 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	m_tree = new Model(m_Direct3D->GetDevice(), L"../res/newTreeTexture.dds", L"../res/Models/new_tree.obj");
 	m_shrub = new Model(m_Direct3D->GetDevice(), L"../res/bushTexture.png", L"../res/Models/bush.obj");
 	m_grass = new Model(m_Direct3D->GetDevice(), L"../res/grassTexture.dds", L"../res/Models/bush.obj");
-	
+	m_planeMesh = new PlaneMesh(m_Direct3D->GetDevice(), L"../res/terrainDirt.jpg");
+
 	// Initialising the shaders.
 	m_textureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
 	m_perlinNoiseShader = new PulsingPlanetShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::PLANET);
@@ -41,7 +42,7 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	for (int i = 0; i < 2; i++)
 	{
 		// Initialise the procedurally generated flora.
-		InitialiseFlora(XMFLOAT3(0.0f, 0.0f, i * -12.5f));
+		InitialiseFlora(XMFLOAT3(0.0f, 0.0f, i * -50.0f));
 	}
 
 }
@@ -133,6 +134,32 @@ ProceduralScene::~ProceduralScene()
 		m_perlinNoise = nullptr;
 	}
 
+	if (m_simplexNoise)
+	{
+		delete m_simplexNoise;
+		m_simplexNoise = nullptr;
+	}
+
+	if (!m_floraModels.empty())
+	{
+		m_floraModels.clear();
+	}
+
+	if (!m_floraTranslations.empty())
+	{
+		m_floraTranslations.clear();
+	}
+
+	if (!m_floraID.empty())
+	{
+		m_floraID.clear();
+	}
+
+	if (!m_floraGravity.empty())
+	{
+		m_floraGravity.clear();
+	}
+
 }
 
 void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
@@ -160,7 +187,7 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 		noiseIDValue = m_simplexNoise->noise(i) * (ObjectIDNumber::ID_GRASS + 2);
 
 		// Calculating the next flora translation value base on noise.
-		floraTranslation = XMFLOAT3((m_simplexNoise->noise(i) * 50.0f) + newStartPosition.x, newStartPosition.y, (m_simplexNoise->noise(i)) + newStartPosition.z);
+		floraTranslation = XMFLOAT3((m_simplexNoise->noise(i) * 25.0f) + newStartPosition.x, newStartPosition.y, (m_simplexNoise->noise(i)) + newStartPosition.z);
 
 		// If we should change the sign for our values.
 		if (changeSign)
@@ -199,6 +226,9 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 		}
 		else
 		{
+			// Adjusting the x translation value to make even spacing for all bushes.
+			floraTranslation.x *= 2.0f;
+
 			// Place in the current ID value.
 			m_floraID.push_back(noiseIDValue);
 
@@ -285,7 +315,7 @@ void ProceduralScene::Controls(float dt)
 	if (m_Input->isKeyDown(VK_INSERT))
 	{
 		// Calculate a random value between 0 - 75.
-		int randomval = rand() % 50;
+		int randomval = rand() % 25;
 
 		// Initialise a new patch of procedurally generated flora at randomly assigned positions.
 		InitialiseFlora(XMFLOAT3(randomval, 0.0f, randomval * 0.5f));
@@ -336,7 +366,7 @@ void ProceduralScene::RenderTheFireProceduralSphere(XMMATRIX& worldMatrix, XMMAT
 {
 
 	// This will process our specific sphere to the position that we want it in.
-	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(15.0f, 5.0f, -75.0f), m_proceduralFireSphereMesh, true);
+	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(15.0f, 30.0f, 0.0f), m_proceduralFireSphereMesh, true);
 
 }
 
@@ -344,7 +374,7 @@ void ProceduralScene::RenderTheFireSphere(XMMATRIX& worldMatrix, XMMATRIX& viewM
 {
 
 	// This will process our specific sphere to the position that we want it in.
-	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(30.0f, 5.0f, -75.0f), m_normalFireSphereMesh, false);
+	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(30.0f, 30.0f, 0.0f), m_normalFireSphereMesh, false);
 
 }
 
@@ -352,7 +382,7 @@ void ProceduralScene::RenderTheWaterProceduralSphere(XMMATRIX& worldMatrix, XMMA
 {
 
 	// This will process our specific sphere to the position that we want it in.
-	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(45.0f, 5.0f, -75.0f), m_proceduralWaterSphereMesh, true);
+	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(45.0f, 30.0f, -0.0f), m_proceduralWaterSphereMesh, true);
 
 }
 
@@ -360,7 +390,7 @@ void ProceduralScene::RenderTheWaterSphere(XMMATRIX& worldMatrix, XMMATRIX& view
 {
 
 	// This will process our specific sphere to the position that we want it in.
-	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(60.0f, 5.0f, -75.0f), m_normalWaterSphereMesh, false);
+	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(60.0f, 30.0f, -0.0f), m_normalWaterSphereMesh, false);
 
 }
 
@@ -368,7 +398,7 @@ void ProceduralScene::RenderTheLightningProceduralSphere(XMMATRIX& worldMatrix, 
 {
 
 	// This will process our specific sphere to the position that we want it in.
-	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(75.0f, 5.0f, -75.0f), m_proceduralLightningSphereMesh, true);
+	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(75.0f, 30.0f, -0.0f), m_proceduralLightningSphereMesh, true);
 
 }
 
@@ -376,7 +406,7 @@ void ProceduralScene::RenderTheLightningSphere(XMMATRIX& worldMatrix, XMMATRIX& 
 {
 
 	// This will process our specific sphere to the position that we want it in.
-	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(90.0f, 5.0f, -75.0f), m_normalLightningSphereMesh, false);
+	ProcessSphere(worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(90.0f, 30.0f, -0.0f), m_normalLightningSphereMesh, false);
 
 }
 
@@ -516,6 +546,30 @@ void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 
 }
 
+void ProceduralScene::RenderTheGround(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+{
+
+	// The new translation, where we want our object to be.
+	XMMATRIX new_transformation = XMMatrixTranslation(0.0f, 0.0f, -50.0f);
+	XMMATRIX new_rotation = XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
+	XMMATRIX new_scale = XMMatrixScaling(1.5f, 1.0f, 1.5f);
+	//XMMATRIX new_scale = XMMatrixScaling(0.125f, 0.125f, 0.125f);
+
+	// Multiplying the transformations together.
+	worldMatrix = new_scale;
+	worldMatrix *= new_rotation;
+	worldMatrix *= new_transformation;
+
+	// Rendering the plane.
+	m_planeMesh->SendData(m_Direct3D->GetDeviceContext());
+	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_planeMesh->GetTexture());
+	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_planeMesh->GetIndexCount());
+
+	// Reset the world matrix.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+}
+
 void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
 {
 
@@ -540,19 +594,10 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 	// Render the normal sphere.
 	RenderTheLightningSphere(worldMatrix, viewMatrix, projectionMatrix);
 
+	// Render the dirt ground.
+	RenderTheGround(worldMatrix, viewMatrix, projectionMatrix);
+
 	// Process all of the procedural flora.
 	ProcessFlora(worldMatrix, viewMatrix, projectionMatrix);
-
-	// Render the tree model.
-	//RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix, m_perlinNoise->Noise(2.00, 1.97, 9.84));
-
-	// Render the tree model.
-	//RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix);
-
-	// Render the shrub model.
-	//RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix);
-
-	// Render the grass model.
-	//RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix, m_grass, XMFLOAT3(0.0f, 0.0f, -75.0f));
 
 }

@@ -704,13 +704,13 @@ void Scene::RenderTheScene(float dt)
 	//RenderTheModel(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering a plane mesh.
-	RenderTheFloor(worldMatrix, viewMatrix, projectionMatrix);	
+	//RenderTheFloor(worldMatrix, viewMatrix, projectionMatrix);	
 
 	// Rendering the point lights and sphere meshes.
-	RenderThePointLights(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderThePointLights(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering the shadow point lights.
-	RenderTheShadowPointLights(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheShadowPointLights(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Rendering the terrain.
 	//RenderTheTerrain(worldMatrix, viewMatrix, projectionMatrix);
