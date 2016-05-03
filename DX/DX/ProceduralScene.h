@@ -44,6 +44,7 @@ class ProceduralScene : public BaseScene
 		~ProceduralScene();
 		void RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void Controls(float dt);
+		void InitialiseFlora(XMFLOAT3 newStartPosition);
 
 		// Setters.
 		// Setting the current sphere rotation.

@@ -34,53 +34,12 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	// Initialise the seed for our perlin noise selection.
 	m_perlinNoise = new PerlinNoise();
 	m_simplexNoise = new SimplexNoise(1.0f, 1.0f, 2.0f, 0.5f);
-	int signChanger = -1;
-	bool changeSign = false;
 	srand(time(0));
-	
-	XMFLOAT3 floraTranslation = {0.0f, 0.0f, 0.0f};
 
-	for (float i = 0.0f; i < ((float)MAX_AMOUNT_OF_FLORA / (float)MAX_AMOUNT_OF_FLORA); (i += (1.0f / MAX_AMOUNT_OF_FLORA)))
+	for (int i = 0; i < 2; i++)
 	{
-		int randomval = rand() % 2;
-		//int randomval = m_simplexNoise->noise(i) * 2.0f;
-		changeSign = randomval;
-
-		noiseIDValue = m_simplexNoise->noise(i * 0.5f) * ObjectIDNumber::ID_GRASS;
-		floraTranslation = XMFLOAT3(m_simplexNoise->noise(i) * 100.0f, 0.0f, m_simplexNoise->noise(i) * 25.0f);
-
-		if (changeSign)
-		{
-			floraTranslation.z *= signChanger;
-			changeSign = false;
-		}
-
-		if (noiseIDValue == ObjectIDNumber::ID_TREE)
-		{
-			// Place in the current ID value.
-			m_floraID.push_back(noiseIDValue);
-
-			// Where this flora will be placed.
-			m_floraTranslations.push_back(floraTranslation);
-
-			// Place in a tree into the vector.
-			m_floraModels.push_back(m_tree);
-		}
-		else if (noiseIDValue == ObjectIDNumber::ID_BUSH)
-		{
-			// Place in the current ID value.
-			m_floraID.push_back(noiseIDValue);
-
-			// Where this flora will be placed.
-			m_floraTranslations.push_back(floraTranslation);
-
-			// Place in a bush into the vector.
-			m_floraModels.push_back(m_shrub);
-		}
-		else if (noiseIDValue == ObjectIDNumber::ID_GRASS)
-		{
-			//m_floraModels.push_back();
-		}
+		// Initialise the procedurally generated flora.
+		InitialiseFlora(XMFLOAT3(0.0f, 0.0f, i * 25.0f));
 	}
 }
 
@@ -173,6 +132,59 @@ ProceduralScene::~ProceduralScene()
 
 }
 
+void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
+{
+
+	int signChanger = -1;
+	bool changeSign = false;
+	XMFLOAT3 floraTranslation = { 0.0f, 0.0f, 0.0f };
+
+	for (float i = 0.0f; i < ((float)MAX_AMOUNT_OF_FLORA / (float)MAX_AMOUNT_OF_FLORA); (i += (1.0f / MAX_AMOUNT_OF_FLORA)))
+	{
+		int randomval = rand() % 2;
+		//int randomval = m_simplexNoise->noise(i) * 2.0f;
+		changeSign = randomval;
+
+		noiseIDValue = m_simplexNoise->noise(i * 0.5f) * ObjectIDNumber::ID_GRASS;
+
+		floraTranslation = XMFLOAT3((m_simplexNoise->noise(i) * 100.0f) + newStartPosition.x, newStartPosition.y, (m_simplexNoise->noise(i) * 25.0f) + newStartPosition.z);
+
+		if (changeSign)
+		{
+			floraTranslation.z *= signChanger;
+			changeSign = false;
+		}
+
+		if (noiseIDValue == ObjectIDNumber::ID_TREE)
+		{
+			// Place in the current ID value.
+			m_floraID.push_back(noiseIDValue);
+
+			// Where this flora will be placed.
+			m_floraTranslations.push_back(floraTranslation);
+
+			// Place in a tree into the vector.
+			m_floraModels.push_back(m_tree);
+		}
+		else if (noiseIDValue == ObjectIDNumber::ID_BUSH)
+		{
+			// Place in the current ID value.
+			m_floraID.push_back(noiseIDValue);
+
+			// Where this flora will be placed.
+			m_floraTranslations.push_back(floraTranslation);
+
+			// Place in a bush into the vector.
+			m_floraModels.push_back(m_shrub);
+		}
+		else if (noiseIDValue == ObjectIDNumber::ID_GRASS)
+		{
+			//m_floraModels.push_back();
+		}
+	}
+
+}
+
 void ProceduralScene::Controls(float dt)
 {
 
@@ -196,6 +208,16 @@ void ProceduralScene::Controls(float dt)
 	else if (m_Input->isRightMouseDown())
 	{
 		gravityDebug -= 0.01f;
+	}
+
+	// If we want to insert some more procedurally generated flora.
+	if (m_Input->isKeyDown(VK_INSERT))
+	{
+		// Calculate a random value between 0 - 75.
+		int randomval = rand() % 75;
+
+		// Initialise a new patch of procedurally generated flora at randomly assigned positions.
+		InitialiseFlora(XMFLOAT3(randomval, 0.0f, randomval));
 	}
 
 }
