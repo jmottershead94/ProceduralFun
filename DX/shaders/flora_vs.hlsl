@@ -145,16 +145,8 @@ OutputType main(InputType input)
 	// If the noise value is greater than 0.
 	if (noiseValue > 0.0f)
 	{
-		//if (ID == ID_TREE)
-		//{
-		//	// Then divide this new position by a gravity value manipulated by noise.
-		//	vPosition.z /= noiseValue;
-		//}
-		//else if (ID == ID_BUSH)
-		//{
-			// Then divide this new position by a gravity value manipulated by noise.
-			vPosition.y /= noiseValue;
-		//}
+		// Then divide this new position by a gravity value manipulated by noise.
+		vPosition.y /= noiseValue;
 	}
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.

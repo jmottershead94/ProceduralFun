@@ -53,11 +53,11 @@ class ProceduralScene : public BaseScene
 	protected:
 		// Attributes.
 		// Standard.
-		const int MAX_AMOUNT_OF_FLORA = 256;
+		const int MAX_AMOUNT_OF_FLORA = 128;
 		const int MAX_AMOUNT_OF_FLORA_PER_PATCH = 32;
 		float sphereRotation;
 		XMFLOAT3 treeRotation;
-		float gravityDebug;
+		float gravityControl;
 		int noiseIDValue;
 		int noiseIDValue2;
 
@@ -71,10 +71,7 @@ class ProceduralScene : public BaseScene
 		Model* m_tree;
 		Model* m_shrub;
 		Model* m_grass;
-		Model* m_NOTGRASS;
-		vector<Model*> m_floraModels;
-		vector<XMFLOAT3> m_floraTranslations;
-		vector<int> m_floraID;
+		
 
 		// Shaders.
 		TextureShader* m_textureShader;				// This will be used to show off the original texture.
@@ -86,6 +83,12 @@ class ProceduralScene : public BaseScene
 		SimplexNoise* m_simplexNoise;
 
 	private:
+		// Attributes.
+		vector<Model*> m_floraModels;
+		vector<XMFLOAT3> m_floraTranslations;
+		vector<int> m_floraID;
+		vector<float> m_floraGravity;
+
 		// Methods.
 		void InitialiseFlora(XMFLOAT3 newStartPosition);
 		void RemoveFlora();
@@ -97,10 +100,10 @@ class ProceduralScene : public BaseScene
 		void RenderTheLightningProceduralSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheLightningSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void ProcessFlora(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
-		void RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* floraModel, XMFLOAT3 translation, int IDNumber);
-		void RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation);
-		void RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation);
-		void RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* grassModel, XMFLOAT3 translation);
+		void RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* floraModel, XMFLOAT3 translation, int IDNumber, float patchGravityValue);
+		void RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation, float patchGravityValue);
+		void RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation, float patchGravityValue);
+		void RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* grassModel, XMFLOAT3 translation, float patchGravityValue);
 };
 
 #endif

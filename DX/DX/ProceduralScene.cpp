@@ -28,8 +28,10 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 
 	// Sphere rotation.
 	sphereRotation = 0.0f;
+
+	// Flora variables.
 	treeRotation = {0.0f, 0.0f, 0.0f};
-	gravityDebug = 1.0f;
+	gravityControl = 1.0f;
 
 	// Initialise the seed for our perlin noise selection.
 	m_perlinNoise = new PerlinNoise();
@@ -146,6 +148,7 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 	const int signChanger = -1;
 	bool changeSign = false;
 	XMFLOAT3 floraTranslation = { 0.0f, 0.0f, 0.0f };
+	m_floraGravity.push_back(m_simplexNoise->noise(0.5f) * (rand() % 5));
 
 	for (float i = 0.0f; i < 1.0f; (i += (1.0f / MAX_AMOUNT_OF_FLORA_PER_PATCH)))
 	{
@@ -168,7 +171,6 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 			// We no longer need to change the sign.
 			changeSign = false;
 		}
-
 
 		if (noiseIDValue == ObjectIDNumber::ID_TREE)
 		{
@@ -195,21 +197,10 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 			// Place in a bush into the vector.
 			m_floraModels.push_back(m_shrub);
 		}
-		else if (noiseIDValue == ObjectIDNumber::ID_GRASS)
-		{
-			// Place in the current ID value.
-			m_floraID.push_back(noiseIDValue);
-
-			// Where this flora will be placed.
-			m_floraTranslations.push_back(floraTranslation);
-
-			// Place in grass into the vector.
-			m_floraModels.push_back(m_grass);
-		}
 		else
 		{
 			// Place in the current ID value.
-			m_floraID.push_back(ObjectIDNumber::ID_GRASS);
+			m_floraID.push_back(noiseIDValue);
 
 			// Where this flora will be placed.
 			m_floraTranslations.push_back(floraTranslation);
@@ -223,7 +214,6 @@ void ProceduralScene::InitialiseFlora(XMFLOAT3 newStartPosition)
 
 void ProceduralScene::RemoveFlora()
 {
-
 	// Loop through the latest patch of flora.
 	for (int i = 0; i < MAX_AMOUNT_OF_FLORA_PER_PATCH; i++)
 	{
@@ -250,6 +240,20 @@ void ProceduralScene::RemoveFlora()
 		}
 	}
 
+	// Gravity will affect an entire patch of flora.
+	// Should loop through the amount of gravity scales there are.
+	for (int i = 0; i < m_floraGravity.size(); i++)
+	{
+		// If we have the more than the minimum amount of the flora specified.
+		if (m_floraGravity.size() > 1)
+		{
+			std::vector<float>::iterator gravityIndex = m_floraGravity.begin() + i;
+
+			// Erase the current iterator index for this vector.
+			m_floraGravity.erase(gravityIndex);
+		}
+	}
+
 }
 
 void ProceduralScene::Controls(float dt)
@@ -270,11 +274,11 @@ void ProceduralScene::Controls(float dt)
 
 	if (m_Input->isLeftMouseDown())
 	{
-		gravityDebug += 0.01f;
+		gravityControl += 0.01f;
 	}
 	else if (m_Input->isRightMouseDown())
 	{
-		gravityDebug -= 0.01f;
+		gravityControl -= 0.01f;
 	}
 
 	// If we want to insert some more procedurally generated flora.
@@ -378,40 +382,46 @@ void ProceduralScene::RenderTheLightningSphere(XMMATRIX& worldMatrix, XMMATRIX& 
 
 void ProceduralScene::ProcessFlora(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
 {
+	int currentPatch = 0;
 
-	for (int i = 0; i < m_floraModels.size(); i++)
+	for (int j = 0; j < m_floraGravity.size(); j++)
 	{
-		// If our tree model didn't have stupid axis alignment, this would be perfect.
-		//RenderTheFloraModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i], m_floraID[i]);
+		for (int i = (currentPatch * MAX_AMOUNT_OF_FLORA_PER_PATCH); i < m_floraModels.size(); i++)
+		{
+			// If each model was scaled in the same way, this would work perfectly.
+			// RenderTheFloraModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i], m_floraID[i]);
 
-		// If we have a tree model in our model vector.
-		if (m_floraID[i] == ObjectIDNumber::ID_TREE)
-		{
-			// Render the tree model.
-			RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i]);
+			// If we have a tree model in our model vector.
+			if (m_floraID[i] == ObjectIDNumber::ID_TREE)
+			{
+				// Render the tree model.
+				RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i], m_floraGravity[j]);
+			}
+			// Otherwise, if we have bush model in our model vector.
+			else if (m_floraID[i] == ObjectIDNumber::ID_BUSH)
+			{
+				// Render the bush model.
+				RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i], m_floraGravity[j]);
+			}
+			// Otherwise, if we have bush model in our model vector.
+			else if (m_floraID[i] == ObjectIDNumber::ID_GRASS)
+			{
+				// Render the grass model.
+				RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i], m_floraGravity[j]);
+			}
 		}
-		// Otherwise, if we have bush model in our model vector.
-		else if (m_floraID[i] == ObjectIDNumber::ID_BUSH)
-		{
-			// Render the bush model.
-			RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i]);
-		}
-		// Otherwise, if we have bush model in our model vector.
-		else if (m_floraID[i] == ObjectIDNumber::ID_GRASS)
-		{
-			// Render the grass model.
-			RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i]);
-		}
+
+		currentPatch++;
 	}
 
 }
 
-void ProceduralScene::RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* floraModel, XMFLOAT3 translation, int IDNumber)
+void ProceduralScene::RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* floraModel, XMFLOAT3 translation, int IDNumber, float patchGravityValue)
 {
 
 	// The new translation, where we want our object to be.
 	XMMATRIX newTransformation = XMMatrixTranslation(translation.x, translation.y, translation.z);
-	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(1.5f, 0.0f, 0.0f);
+	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
 	XMMATRIX newScale = XMMatrixScaling(0.25f, 0.25f, 0.25f);
 
 	// Multiplying the transformations together.
@@ -422,7 +432,7 @@ void ProceduralScene::RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	// Render the tree.
 	floraModel->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, floraModel->GetTexture(), gravityDebug, IDNumber);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, floraModel->GetTexture(), gravityControl + patchGravityValue, IDNumber);
 	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, floraModel->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_TREE);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), floraModel->GetIndexCount());
 
@@ -431,7 +441,7 @@ void ProceduralScene::RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 
 }
 
-void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation)
+void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation, float patchGravityValue)
 {
 
 	// The new translation, where we want our object to be.
@@ -447,7 +457,7 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 	// Render the tree.
 	treeModel->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, treeModel->GetTexture(), gravityDebug, ObjectIDNumber::ID_TREE);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, treeModel->GetTexture(), gravityControl + patchGravityValue, ObjectIDNumber::ID_TREE);
 	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_TREE);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), treeModel->GetIndexCount());
 	
@@ -456,7 +466,7 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 
 }
 
-void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation)
+void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation, float patchGravityValue)
 {
 
 	// The new translation, where we want our object to be.
@@ -472,7 +482,7 @@ void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	// Render the bush.
 	shrubModel->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, shrubModel->GetTexture(), gravityDebug, ObjectIDNumber::ID_BUSH);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, shrubModel->GetTexture(), gravityControl + patchGravityValue, ObjectIDNumber::ID_BUSH);
 	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, shrubModel->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_BUSH);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), shrubModel->GetIndexCount());
 
@@ -481,7 +491,7 @@ void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 
 }
 
-void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* grassModel, XMFLOAT3 translation)
+void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* grassModel, XMFLOAT3 translation, float patchGravityValue)
 {
 
 	// The new translation, where we want our object to be.
@@ -498,7 +508,7 @@ void ProceduralScene::RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	// Render the tree.
 	grassModel->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, grassModel->GetTexture(), gravityDebug, ObjectIDNumber::ID_GRASS);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, grassModel->GetTexture(), gravityControl + patchGravityValue, ObjectIDNumber::ID_GRASS);
 	m_floraShader->Render(m_Direct3D->GetDeviceContext(), grassModel->GetIndexCount());
 
 	// Reset the world matrix.
