@@ -90,6 +90,7 @@
     <ClCompile Include="BaseApplication.cpp" />
     <ClCompile Include="BaseMesh.cpp" />
     <ClCompile Include="FloraShader.cpp" />
+    <ClCompile Include="HorizontalBlurShader.cpp" />
     <ClCompile Include="ProceduralScene.cpp" />
     <ClCompile Include="BaseScene.cpp" />
     <ClCompile Include="BaseShader.cpp" />
@@ -125,11 +126,13 @@
     <ClCompile Include="TextureShader.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="TokenStream.cpp" />
+    <ClCompile Include="VerticalBlurShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseApplication.h" />
     <ClInclude Include="BaseMesh.h" />
     <ClInclude Include="FloraShader.h" />
+    <ClInclude Include="HorizontalBlurShader.h" />
     <ClInclude Include="ObjectIDNumber.h" />
     <ClInclude Include="ProceduralIDNumber.h" />
     <ClInclude Include="ProceduralScene.h" />
@@ -166,6 +169,7 @@
     <ClInclude Include="TextureShader.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="TokenStream.h" />
+    <ClInclude Include="VerticalBlurShader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -187,6 +191,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\shaders\flora_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\shaders\horizontalBlur_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\shaders\horizontalBlur_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\shaders\pulsing_planet_ps.hlsl">
@@ -250,6 +260,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
     <FxCompile Include="..\shaders\texture_vs.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\shaders\verticalBlur_ps.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="..\shaders\verticalBlur_vs.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </FxCompile>
   </ItemGroup>

@@ -682,7 +682,7 @@ void Scene::RenderTheScene(float dt)
 	// Post processing/Multi-pass rendering.
 	//RenderToShadowTexture();
 	//RenderToMiniMap();
-	RenderToTextureBlur();
+	//RenderToTextureBlur();
 
 	XMMATRIX worldMatrix, baseViewMatrix, viewMatrix, projectionMatrix, orthoMatrix;
 
@@ -724,30 +724,30 @@ void Scene::RenderTheScene(float dt)
 	// Render the procedural methods scene.
 	m_proceduralScene->RenderTheScene(dt, worldMatrix, viewMatrix, projectionMatrix);
 
-	// To render ortho mesh.
-	// Turn off the z buffer to begin all 2D rendering.
-	m_Direct3D->TurnZBufferOff();
+	//// To render ortho mesh.
+	//// Turn off the z buffer to begin all 2D rendering.
+	//m_Direct3D->TurnZBufferOff();
 
-	// Ortho Matrix for 2D rendering.
-	m_Direct3D->GetOrthoMatrix(orthoMatrix);	
-	m_Camera->GetBaseViewMatrix(baseViewMatrix);
-	
-	// Displaying the mini map.
-	m_miniMapDisplay->SendData(m_Direct3D->GetDeviceContext());
-	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_miniMap->GetShaderResourceView());
-	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_miniMapDisplay->GetIndexCount());
+	//// Ortho Matrix for 2D rendering.
+	//m_Direct3D->GetOrthoMatrix(orthoMatrix);	
+	//m_Camera->GetBaseViewMatrix(baseViewMatrix);
+	//
+	//// Displaying the mini map.
+	//m_miniMapDisplay->SendData(m_Direct3D->GetDeviceContext());
+	//m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_miniMap->GetShaderResourceView());
+	//m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_miniMapDisplay->GetIndexCount());
 
-	// If we want to use box blur.
-	if (m_useBoxBlur)
-	{
-		// Apply box blur.
-		m_blurredScene->SendData(m_Direct3D->GetDeviceContext());
-		m_boxBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_blurredTexture->GetShaderResourceView(), m_screenWidth, m_screenHeight);
-		m_boxBlurShader->Render(m_Direct3D->GetDeviceContext(), m_blurredScene->GetIndexCount());
-	}
+	//// If we want to use box blur.
+	//if (m_useBoxBlur)
+	//{
+	//	// Apply box blur.
+	//	m_blurredScene->SendData(m_Direct3D->GetDeviceContext());
+	//	m_boxBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_blurredTexture->GetShaderResourceView(), m_screenWidth, m_screenHeight);
+	//	m_boxBlurShader->Render(m_Direct3D->GetDeviceContext(), m_blurredScene->GetIndexCount());
+	//}
 
-	// Turn on the z buffer to render back to the 3D scene.
-	m_Direct3D->TurnZBufferOn();
+	//// Turn on the z buffer to render back to the 3D scene.
+	//m_Direct3D->TurnZBufferOn();
 	
 	// Present the rendered scene to the screen.
 	m_Direct3D->EndScene();

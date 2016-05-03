@@ -80,54 +80,6 @@ double PerlinNoise::Noise(double x, double y, double z)
 	return ((res + 1.0) / 255.0);
 }
 
-int PerlinNoise::SimplexNoise(float x) 
-{
-	float n0, n1;// Noise contributions from the two "corners"
-
-	// No need to skew the input space in 1D
-
-	// Corners coordinates (nearest integer values):
-	int i0 = std::floor(x);
-	int i1 = i0 + 1;
-
-	// Distances to corners (between 0 and 1):
-	float x0 = x - i0;
-	float x1 = x0 - 1.0f;
-
-	// Calculate the contribution from the first corner
-	float t0 = 1.0f - x0*x0;
-
-	//  if(t0 < 0.0f) t0 = 0.0f; // not possible
-	t0 *= t0;
-	n0 = t0 * t0 * Gradient(i0, x0);
-
-	// Calculate the contribution from the second corner
-	float t1 = 1.0f - x1*x1;
-	//  if(t1 < 0.0f) t1 = 0.0f; // not possible
-	t1 *= t1;
-	n1 = t1 * t1 * Gradient(i1, x1);
-
-	// The maximum value of this noise is 8*(3/4)^4 = 2.53125
-	// A factor of 0.395 scales to fit exactly within [-1,1]
-	return 0.395f * (n0 + n1);
-}
-
-// Works out the gradient for the perlin noise graph points?
-float PerlinNoise::Gradient(int hash, float x)
-{
-	int h = hash & 15;
-
-	// Convert lower 4 bits of hash inot 12 Gradientient directions
-	float grad = 1.0f + (h & 7);
-
-	if ((h & 8) != 0)
-	{
-		grad = -grad;
-	}
-
-	return (grad * x);
-}
-
 // Smoothes our the perlin noise?
 double PerlinNoise::Fade(double t) 
 {

@@ -21,11 +21,20 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	m_shrub = new Model(m_Direct3D->GetDevice(), L"../res/bushTexture.png", L"../res/Models/bush.obj");
 	m_grass = new Model(m_Direct3D->GetDevice(), L"../res/grassTexture.dds", L"../res/Models/bush.obj");
 	m_planeMesh = new PlaneMesh(m_Direct3D->GetDevice(), L"../res/terrainDirt.jpg");
+	m_renderTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	m_renderBlurTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	m_downSampleTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth / 2, screenHeight / 2, SCREEN_NEAR, SCREEN_DEPTH);		//Downscale
+	m_horizontalSampleTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth / 2, screenHeight / 2, SCREEN_NEAR, SCREEN_DEPTH);		//Horizontal
+	m_verticalSampleTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth / 2, screenHeight / 2, SCREEN_NEAR, SCREEN_DEPTH);		//Vertical
+	m_upSampleTexture = new RenderTexture(m_Direct3D->GetDevice(), screenWidth, screenHeight, SCREEN_NEAR, SCREEN_DEPTH);				//Upscale
+	m_blurredMesh = new OrthoMesh(m_Direct3D->GetDevice(), m_screenWidth, m_screenHeight, 0, 0);
 
 	// Initialising the shaders.
 	m_textureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
 	m_perlinNoiseShader = new PulsingPlanetShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::PLANET);
 	m_floraShader = new FloraShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::FLORA);
+	m_horizontalBlurShader = new HorizontalBlurShader(m_Direct3D->GetDevice(), hwnd);
+	m_verticalBlurShader = new VerticalBlurShader(m_Direct3D->GetDevice(), hwnd);
 
 	// Sphere rotation.
 	sphereRotation = 0.0f;
@@ -33,6 +42,9 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	// Flora variables.
 	treeRotation = {0.0f, 0.0f, 0.0f};
 	gravityControl = 1.0f;
+
+	// Gaussian Blur flag.
+	m_activateGaussianBlur = false;
 
 	// Initialise the seed for our perlin noise selection.
 	m_perlinNoise = new PerlinNoise();
@@ -326,6 +338,203 @@ void ProceduralScene::Controls(float dt)
 		RemoveFlora();
 	}
 
+	if (m_Input->isKeyDown('9'))
+	{
+		m_activateGaussianBlur = true;
+	}
+	else if (m_Input->isKeyDown('0'))
+	{
+		m_activateGaussianBlur = false;
+	}
+
+}
+
+void ProceduralScene::RenderToTexture(float dt)
+{
+
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix;
+
+	// Set the render target to be the render to texture.
+	m_renderTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());
+
+	// Clear the render to texture.
+	m_renderTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 1.0f, 0.5f);
+
+	// Generate the view martrix based on the camera's position.
+	m_Camera->Update();
+
+	// Get the world, view and projection matrices form the camera and d3d objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	// Render everything within our scene.
+	//RenderTheScene(dt, worldMatrix, viewMatrix, projectionMatrix);
+
+	// Rotate the spheres.
+	sphereRotation += 0.001f;
+
+	// Render our procedurally manipulated sphere.
+	RenderTheFireProceduralSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the normal sphere.
+	RenderTheFireSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render our procedurally manipulated sphere.
+	RenderTheWaterProceduralSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the normal sphere.
+	RenderTheWaterSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render our procedurally manipulated sphere.
+	RenderTheLightningProceduralSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the normal sphere.
+	RenderTheLightningSphere(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Render the dirt ground.
+	RenderTheGround(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Process all of the procedural flora.
+	ProcessFlora(worldMatrix, viewMatrix, projectionMatrix);
+
+	// Set the back buffer render target.
+	m_Direct3D->SetBackBufferRenderTarget();
+
+}
+
+void ProceduralScene::DownSampleTexture()
+{
+
+	XMMATRIX worldMatrix, orthoMatrix, baseViewMatrix;
+
+	m_downSampleTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());								// Set the render target to be the render to texture.
+	m_downSampleTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);		// Clear the render to texture.
+
+	m_Camera->Update();
+
+	// Get the world matrix.
+	m_Direct3D->GetWorldMatrix(worldMatrix);	
+
+	// Turn off the z buffer and start work on the blur.
+	m_Direct3D->TurnZBufferOff();
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	// Render our blurred mesh.
+	m_blurredMesh->SendData(m_Direct3D->GetDeviceContext());
+	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_renderTexture->GetShaderResourceView());
+	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_blurredMesh->GetIndexCount());
+	
+	// Turn the z buffer back on.
+	m_Direct3D->TurnZBufferOn();
+
+}
+
+void ProceduralScene::RenderHorizontalBlurTexture()
+{
+
+	XMMATRIX worldMatrix, orthoMatrix, baseViewMatrix;
+
+	m_horizontalSampleTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());		// Set the render target to be the render to texture.
+	m_horizontalSampleTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);		// Clear the render to texture.
+
+	m_Camera->Update();		// Generate the view matrix based on the camera's position.
+	
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_Direct3D->TurnZBufferOff();
+
+	m_blurredMesh->SendData(m_Direct3D->GetDeviceContext());
+	m_horizontalBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_downSampleTexture->GetShaderResourceView(), m_screenWidth);
+	m_horizontalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_blurredMesh->GetIndexCount());
+
+	m_Direct3D->TurnZBufferOn();
+
+}
+
+void ProceduralScene::RenderVerticalBlurTexture()
+{
+
+	XMMATRIX worldMatrix, orthoMatrix, baseViewMatrix;
+
+	m_verticalSampleTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());			// Set the render target to be the render to texture.
+	m_verticalSampleTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);		// Clear the render to texture.
+
+	m_Camera->Update();		// Generate the view matrix based on the camera's position.
+
+	m_Direct3D->GetWorldMatrix(worldMatrix);	// Get the world, view, and projection matrices from the camera and d3d objects.
+
+	m_Direct3D->TurnZBufferOff();
+	m_Direct3D->GetOrthoMatrix(orthoMatrix); // ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_blurredMesh->SendData(m_Direct3D->GetDeviceContext());
+	m_verticalBlurShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_horizontalSampleTexture->GetShaderResourceView(), m_screenHeight);
+	m_verticalBlurShader->Render(m_Direct3D->GetDeviceContext(), m_blurredMesh->GetIndexCount());
+	
+	m_Direct3D->TurnZBufferOn();
+
+}
+
+void ProceduralScene::UpSampleTexture()
+{
+
+	XMMATRIX worldMatrix, orthoMatrix, baseViewMatrix;
+
+	m_upSampleTexture->SetRenderTarget(m_Direct3D->GetDeviceContext());		// Set the render target to be the render to texture.
+	m_upSampleTexture->ClearRenderTarget(m_Direct3D->GetDeviceContext(), 0.0f, 0.0f, 1.0f, 1.0f);	// Clear the render to texture.
+
+	m_Camera->Update();			// Generate the view matrix based on the camera's position.
+
+	m_Direct3D->GetWorldMatrix(worldMatrix);	// Get the world, view, and projection matrices from the camera and d3d objects.
+
+	m_Direct3D->TurnZBufferOff();
+	m_Direct3D->GetOrthoMatrix(orthoMatrix);
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_blurredMesh->SendData(m_Direct3D->GetDeviceContext());
+	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_verticalSampleTexture->GetShaderResourceView());
+	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_blurredMesh->GetIndexCount());
+	
+	m_Direct3D->TurnZBufferOn();
+
+}
+
+void ProceduralScene::RenderGaussianBlur()
+{
+
+	DownSampleTexture();			// Down sample prior to blurring, optimise
+	RenderHorizontalBlurTexture();	// Apply horizontal blur stage
+	RenderVerticalBlurTexture();	// Apply vertical blur to the horizontal blur stage
+	UpSampleTexture();				// Up sample, return to screen size before outputting to screen
+
+	XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
+
+	m_Direct3D->SetBackBufferRenderTarget();
+
+	m_Camera->Update();	// Generate the view matrix based on the camera's position.
+
+	// Get the world, view, projection, and ortho matrices from the camera and Direct3D objects.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+	m_Camera->GetViewMatrix(viewMatrix);
+	m_Direct3D->GetProjectionMatrix(projectionMatrix);
+
+	m_Direct3D->TurnZBufferOff();
+	m_Direct3D->GetOrthoMatrix(orthoMatrix); // ortho matrix for 2D rendering
+	m_Camera->GetBaseViewMatrix(baseViewMatrix);
+
+	m_blurredMesh->SendData(m_Direct3D->GetDeviceContext());
+	m_textureShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, baseViewMatrix, orthoMatrix, m_upSampleTexture->GetShaderResourceView());
+	m_textureShader->Render(m_Direct3D->GetDeviceContext(), m_blurredMesh->GetIndexCount());
+	
+	m_Direct3D->TurnZBufferOn();
+
+	// Present the rendered scene to the screen.
+	m_Direct3D->EndScene();
+
 }
 
 void ProceduralScene::ProcessSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, XMFLOAT3 position, SphereMesh* sphereMesh, bool isProcedural)
@@ -572,6 +781,9 @@ void ProceduralScene::RenderTheGround(XMMATRIX& worldMatrix, XMMATRIX& viewMatri
 
 void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
 {
+	RenderToTexture(dt);
+
+	XMMATRIX orthoMatrix, baseViewMatrix;
 
 	// Rotate the spheres.
 	sphereRotation += 0.001f;
@@ -599,5 +811,15 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 
 	// Process all of the procedural flora.
 	ProcessFlora(worldMatrix, viewMatrix, projectionMatrix);
+
+	// If we want to use gaussian blur.
+	if (m_activateGaussianBlur)
+	{
+		//RenderToTexture(dt);				// Render scene to texture / render target
+		
+
+		// Apply gaussian blur.
+		RenderGaussianBlur();
+	}
 
 }

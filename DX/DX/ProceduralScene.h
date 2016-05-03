@@ -24,16 +24,21 @@
 #include "SphereMesh.h"
 #include "Model.h"
 #include "PlaneMesh.h"
+#include "RenderTexture.h"
+#include "OrthoMesh.h"
 
 // Shaders.
 #include "TextureShader.h"
 #include "PulsingPlanetShader.h"
 #include "FloraShader.h"
+#include "HorizontalBlurShader.h"
+#include "VerticalBlurShader.h"
 
 // Perlin Noise.
 #include "PerlinNoise.h"
 #include "SimplexNoise.h"
 
+// Misc.
 #include "ObjectIDNumber.h"
 
 class ProceduralScene : public BaseScene
@@ -60,6 +65,7 @@ class ProceduralScene : public BaseScene
 		float gravityControl;
 		int noiseIDValue;
 		int noiseIDValue2;
+		bool m_activateGaussianBlur;
 
 		// Geometry.
 		SphereMesh* m_proceduralFireSphereMesh;			// The sphere mesh that we will be applying the perlin noise texture to.
@@ -72,12 +78,20 @@ class ProceduralScene : public BaseScene
 		Model* m_shrub;
 		Model* m_grass;
 		PlaneMesh* m_planeMesh;							// The plane mesh for providing a floor to the forest.
-
+		RenderTexture* m_renderTexture;
+		RenderTexture* m_renderBlurTexture;
+		RenderTexture* m_downSampleTexture;
+		RenderTexture* m_horizontalSampleTexture;
+		RenderTexture* m_verticalSampleTexture;
+		RenderTexture* m_upSampleTexture;
+		OrthoMesh* m_blurredMesh;
 
 		// Shaders.
-		TextureShader* m_textureShader;				// This will be used to show off the original texture.
-		PulsingPlanetShader* m_perlinNoiseShader;	// The shader that handles perlin noise processing.
-		FloraShader* m_floraShader;					// This shader will handle the procedurally generated flora.
+		TextureShader* m_textureShader;					// This will be used to show off the original texture.
+		PulsingPlanetShader* m_perlinNoiseShader;		// The shader that handles perlin noise processing.
+		FloraShader* m_floraShader;						// This shader will handle the procedurally generated flora.
+		HorizontalBlurShader* m_horizontalBlurShader;
+		VerticalBlurShader* m_verticalBlurShader;
 
 		// Perlin Noise.
 		PerlinNoise* m_perlinNoise;
@@ -93,6 +107,12 @@ class ProceduralScene : public BaseScene
 		// Methods.
 		void InitialiseFlora(XMFLOAT3 newStartPosition);
 		void RemoveFlora();
+		void RenderToTexture(float dt);
+		void DownSampleTexture();
+		void RenderHorizontalBlurTexture();
+		void RenderVerticalBlurTexture();
+		void UpSampleTexture();
+		void RenderGaussianBlur();
 		void ProcessSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, XMFLOAT3 position, SphereMesh* sphereMesh, bool isProcedural);
 		void RenderTheFireProceduralSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheFireSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
