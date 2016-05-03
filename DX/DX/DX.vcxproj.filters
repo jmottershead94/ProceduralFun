@@ -147,6 +147,9 @@
     <ClCompile Include="FloraShader.cpp">
       <Filter>Source Files\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="SimplexNoise.cpp">
+      <Filter>Source Files\PerlinNoise</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Texture.h">
@@ -262,6 +265,9 @@
     </ClInclude>
     <ClInclude Include="FloraShader.h">
       <Filter>Source Files\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="SimplexNoise.h">
+      <Filter>Source Files\PerlinNoise</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

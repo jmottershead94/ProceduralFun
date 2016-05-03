@@ -111,6 +111,7 @@
     <ClCompile Include="PointLight.cpp" />
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="SimplexNoise.cpp" />
     <ClCompile Include="System.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="ManipulationShader.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="PointLight.h" />
     <ClInclude Include="RenderTexture.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="SimplexNoise.h" />
     <ClInclude Include="System.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="ManipulationShader.h" />

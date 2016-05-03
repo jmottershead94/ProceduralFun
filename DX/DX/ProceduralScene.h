@@ -29,6 +29,7 @@
 
 // Perlin Noise.
 #include "PerlinNoise.h"
+#include "SimplexNoise.h"
 
 #include "ObjectIDNumber.h"
 
@@ -49,9 +50,12 @@ class ProceduralScene : public BaseScene
 	protected:
 		// Attributes.
 		// Standard.
+		const int MAX_AMOUNT_OF_FLORA = 32;
 		float sphereRotation;
 		XMFLOAT3 treeRotation;
 		float gravityDebug;
+		int noiseIDValue;
+		int noiseIDValue2;
 
 		// Geometry.
 		SphereMesh* m_proceduralFireSphereMesh;			// The sphere mesh that we will be applying the perlin noise texture to.
@@ -63,6 +67,9 @@ class ProceduralScene : public BaseScene
 		Model* m_tree;
 		Model* m_shrub;
 		Model* m_grass;
+		vector<Model*> m_floraModels;
+		vector<XMFLOAT3> m_floraTranslations;
+		vector<int> m_floraID;
 
 		// Shaders.
 		TextureShader* m_textureShader;				// This will be used to show off the original texture.
@@ -71,6 +78,7 @@ class ProceduralScene : public BaseScene
 
 		// Perlin Noise.
 		PerlinNoise* m_perlinNoise;
+		SimplexNoise* m_simplexNoise;
 
 	private:
 		// Methods.
@@ -81,8 +89,10 @@ class ProceduralScene : public BaseScene
 		void RenderTheWaterSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheLightningProceduralSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 		void RenderTheLightningSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
-		void RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
-		void RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+		void ProcessFlora(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
+		void RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* floraModel, XMFLOAT3 translation, int IDNumber);
+		void RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation);
+		void RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation);
 		void RenderTheGrassModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix);
 };
 

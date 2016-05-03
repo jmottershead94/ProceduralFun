@@ -29,11 +29,46 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	// Sphere rotation.
 	sphereRotation = 0.0f;
 	treeRotation = {0.0f, 0.0f, 0.0f};
-	gravityDebug = 0.5f;
+	gravityDebug = 1.0f;
 
 	// Initialise the seed for our perlin noise selection.
 	m_perlinNoise = new PerlinNoise();
+	m_simplexNoise = new SimplexNoise(1.0f, 1.0f, 2.0f, 0.5f);
+	
+	XMFLOAT3 floraTranslation = {0.0f, 0.0f, 0.0f};
 
+	for (float i = 0.0f; i < ((float)MAX_AMOUNT_OF_FLORA / (float)MAX_AMOUNT_OF_FLORA); (i += (1.0f / MAX_AMOUNT_OF_FLORA)))
+	{
+		noiseIDValue = m_simplexNoise->noise(i * 0.5f) * ObjectIDNumber::ID_GRASS;
+		floraTranslation = XMFLOAT3(i * 100.0f, 0.0f, m_simplexNoise->noise(i) * -100.0f);
+
+		if (noiseIDValue == ObjectIDNumber::ID_TREE)
+		{
+			// Place in the current ID value.
+			m_floraID.push_back(noiseIDValue);
+
+			// Where this flora will be placed.
+			m_floraTranslations.push_back(floraTranslation);
+
+			// Place in a tree into the vector.
+			m_floraModels.push_back(m_tree);
+		}
+		else if (noiseIDValue == ObjectIDNumber::ID_BUSH)
+		{
+			// Place in the current ID value.
+			m_floraID.push_back(noiseIDValue);
+
+			// Where this flora will be placed.
+			m_floraTranslations.push_back(floraTranslation);
+
+			// Place in a bush into the vector.
+			m_floraModels.push_back(m_shrub);
+		}
+		else if (noiseIDValue == ObjectIDNumber::ID_GRASS)
+		{
+			//m_floraModels.push_back();
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////
@@ -234,11 +269,35 @@ void ProceduralScene::RenderTheLightningSphere(XMMATRIX& worldMatrix, XMMATRIX& 
 
 }
 
-void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+void ProceduralScene::ProcessFlora(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+{
+
+	for (int i = 0; i < m_floraModels.size(); i++)
+	{
+		// If our tree model didn't have stupid axis alignment, this would be perfect.
+		//RenderTheFloraModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i], m_floraID[i]);
+
+		// If we have a tree model in our model vector.
+		if (m_floraID[i] == ObjectIDNumber::ID_TREE)
+		{
+			// Render the tree model.
+			RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i]);
+		}
+		// Otherwise, if we have bush model in our model vector.
+		else if (m_floraID[i] == ObjectIDNumber::ID_BUSH)
+		{
+			// Render the bush model.
+			RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix, m_floraModels[i], m_floraTranslations[i]);
+		}
+	}
+
+}
+
+void ProceduralScene::RenderTheFloraModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* floraModel, XMFLOAT3 translation, int IDNumber)
 {
 
 	// The new translation, where we want our object to be.
-	XMMATRIX newTransformation = XMMatrixTranslation(15.0f, 0.1f, -50.0f);
+	XMMATRIX newTransformation = XMMatrixTranslation(translation.x, translation.y, translation.z);
 	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(1.5f, 0.0f, 0.0f);
 	XMMATRIX newScale = XMMatrixScaling(0.25f, 0.25f, 0.25f);
 
@@ -248,23 +307,48 @@ void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMa
 	worldMatrix *= newTransformation;
 
 	// Render the tree.
-	m_tree->SendData(m_Direct3D->GetDeviceContext());
+	floraModel->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture(), gravityDebug, ObjectIDNumber::ID_TREE);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, floraModel->GetTexture(), gravityDebug, IDNumber);
+	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, floraModel->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_TREE);
+	m_floraShader->Render(m_Direct3D->GetDeviceContext(), floraModel->GetIndexCount());
+
+	// Reset the world matrix.
+	m_Direct3D->GetWorldMatrix(worldMatrix);
+
+}
+
+void ProceduralScene::RenderTheTreeModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* treeModel, XMFLOAT3 translation)
+{
+
+	// The new translation, where we want our object to be.
+	XMMATRIX newTransformation = XMMatrixTranslation(translation.x, translation.y, translation.z);
+	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(1.5f, 0.0f, 0.0f);
+	XMMATRIX newScale = XMMatrixScaling(0.25f, 0.25f, 0.25f);
+
+	// Multiplying the transformations together.
+	worldMatrix = newScale;
+	worldMatrix *= newRotation;
+	worldMatrix *= newTransformation;
+
+	// Render the tree.
+	treeModel->SendData(m_Direct3D->GetDeviceContext());
+
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, treeModel->GetTexture(), gravityDebug, ObjectIDNumber::ID_TREE);
 	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_tree->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_TREE);
-	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_tree->GetIndexCount());
+	m_floraShader->Render(m_Direct3D->GetDeviceContext(), treeModel->GetIndexCount());
 	
 	// Reset the world matrix.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
 
 }
 
-void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
+void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix, Model* shrubModel, XMFLOAT3 translation)
 {
 
 	// The new translation, where we want our object to be.
-	XMMATRIX newTransformation = XMMatrixTranslation(25.0f, 0.1f, -60.0f);
-	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(0.0f, sphereRotation, 0.0f);
+	XMMATRIX newTransformation = XMMatrixTranslation(translation.x, translation.y, translation.z);
+	XMMATRIX newRotation = XMMatrixRotationRollPitchYaw(0.0f, 0.0f, 0.0f);
 	XMMATRIX newScale = XMMatrixScaling(0.0625f, 0.0625f, 0.0625f);
 
 	// Multiplying the transformations together.
@@ -273,11 +357,11 @@ void ProceduralScene::RenderTheShrubModel(XMMATRIX& worldMatrix, XMMATRIX& viewM
 	worldMatrix *= newTransformation;
 
 	// Render the bush.
-	m_shrub->SendData(m_Direct3D->GetDeviceContext());
+	shrubModel->SendData(m_Direct3D->GetDeviceContext());
 
-	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture(), gravityDebug, ObjectIDNumber::ID_BUSH);
+	m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, shrubModel->GetTexture(), gravityDebug, ObjectIDNumber::ID_BUSH);
 	//m_floraShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, m_shrub->GetTexture(), m_perlinNoise->SimplexNoise(gravityDebug), ObjectIDNumber::ID_BUSH);
-	m_floraShader->Render(m_Direct3D->GetDeviceContext(), m_shrub->GetIndexCount());
+	m_floraShader->Render(m_Direct3D->GetDeviceContext(), shrubModel->GetIndexCount());
 
 	// Reset the world matrix.
 	m_Direct3D->GetWorldMatrix(worldMatrix);
@@ -332,14 +416,17 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 	// Render the normal sphere.
 	RenderTheLightningSphere(worldMatrix, viewMatrix, projectionMatrix);
 
+	// Process all of the procedural flora.
+	ProcessFlora(worldMatrix, viewMatrix, projectionMatrix);
+
 	// Render the tree model.
 	//RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix, m_perlinNoise->Noise(2.00, 1.97, 9.84));
 
 	// Render the tree model.
-	RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheTreeModel(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Render the shrub model.
-	RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix);
+	//RenderTheShrubModel(worldMatrix, viewMatrix, projectionMatrix);
 
 	// Render the grass model.
 	//RenderTheGrassModel(worldMatrix, viewMatrix, projectionMatrix);
