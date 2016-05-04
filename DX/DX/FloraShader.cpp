@@ -1,7 +1,7 @@
 // Flora shader .cpp
 #include "FloraShader.h"
 
-FloraShader::FloraShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber) : BaseShader(device, hwnd)
+FloraShader::FloraShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 
 	// Load our shader files.

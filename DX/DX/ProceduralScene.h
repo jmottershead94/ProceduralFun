@@ -61,10 +61,8 @@ class ProceduralScene : public BaseScene
 		const int MAX_AMOUNT_OF_FLORA = 128;
 		const int MAX_AMOUNT_OF_FLORA_PER_PATCH = 32;
 		float sphereRotation;
-		XMFLOAT3 treeRotation;
 		float gravityControl;
 		int noiseIDValue;
-		int noiseIDValue2;
 		bool m_activateGaussianBlur;
 
 		// Geometry.
@@ -88,13 +86,12 @@ class ProceduralScene : public BaseScene
 
 		// Shaders.
 		TextureShader* m_textureShader;					// This will be used to show off the original texture.
-		PulsingPlanetShader* m_perlinNoiseShader;		// The shader that handles perlin noise processing.
+		PulsingPlanetShader* m_pulsingPlanetShader;		// The shader that handles perlin noise processing.
 		FloraShader* m_floraShader;						// This shader will handle the procedurally generated flora.
 		HorizontalBlurShader* m_horizontalBlurShader;
 		VerticalBlurShader* m_verticalBlurShader;
 
-		// Perlin Noise.
-		PerlinNoise* m_perlinNoise;
+		// Noise.
 		SimplexNoise* m_simplexNoise;
 
 	private:

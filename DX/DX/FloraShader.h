@@ -15,7 +15,7 @@ class FloraShader : public BaseShader
 
 public:
 
-	FloraShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber);
+	FloraShader(ID3D11Device* device, HWND hwnd);
 	~FloraShader();
 
 	void SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, float gravity, int ID);

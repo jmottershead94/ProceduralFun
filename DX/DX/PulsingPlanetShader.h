@@ -15,7 +15,7 @@ class PulsingPlanetShader : public BaseShader
 
 public:
 
-	PulsingPlanetShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber);
+	PulsingPlanetShader(ID3D11Device* device, HWND hwnd);
 	~PulsingPlanetShader();
 
 	void SetShaderParameters(ID3D11DeviceContext* deviceContext, const XMMATRIX &world, const XMMATRIX &view, const XMMATRIX &projection, ID3D11ShaderResourceView* texture, Timer* timer);

@@ -1,5 +1,10 @@
 // Jason Mottershead, 1300455.
 
+// This shader implementation of noise was created by following
+// this tutorial: http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
+
+// Rigid noise creation by: https://www.seedofandromeda.com/blogs/49-procedural-gas-giant-rendering-with-gpu-noise
+
 Texture2D shaderTexture	: register(t0);		// Register our shader texture, in this case, our terrain texture.
 SamplerState SampleType	: register(s0);		// The sample type.
 
@@ -70,7 +75,7 @@ float CreatePerlinNoise(int octaves, float x, float y)
 		// Get the noise sample.
 		result += InterpolatedNoise(x * frequency, y * frequency) * amplitude;
 
-		// Make the frequency length twice as small.
+		// Make the frequency longer.
 		frequency += 2.0f;
 
 		// Add to our maximum possible amplitude.
@@ -96,7 +101,7 @@ float CreateRigidNoise(int octaves, float x, float y)
 		// Get the noise sample.
 		result += ((1.0f - abs(InterpolatedNoise(x * frequency, y * frequency))) * 2.0f - 1.0f) * amplitude;
 
-		// Make the frequency length twice as small.
+		// Make the frequency longer.
 		frequency += 2.0f;
 
 		// Add to our maximum possible amplitude.
@@ -119,10 +124,10 @@ float4 main(InputType input) : SV_TARGET
 	float rigidNoise = (CreateRigidNoise(6, newX, newY) * 0.015f);		// Creating some rigid noise.
 
 	// Setting up the pulsing storms.
-	float constantValue = CreateRigidNoise(3, time, time);
-	float t1 = InterpolatedNoise(input.tex.x * 2.0f, input.tex.y * 2.0f) * constantValue;
-	float t2 = InterpolatedNoise(input.tex.x + 800.0f, input.tex.y + 800.0f) * constantValue;
-	float t3 = InterpolatedNoise(input.tex.x + 1600.0f, input.tex.y + 1600.0f) * constantValue;
+	float modifierValue = CreateRigidNoise(3, time, time);
+	float t1 = InterpolatedNoise(input.tex.x * 2.0f, input.tex.y * 2.0f) * modifierValue;
+	float t2 = InterpolatedNoise(input.tex.x + 800.0f, input.tex.y + 800.0f) * modifierValue;
+	float t3 = InterpolatedNoise(input.tex.x + 1600.0f, input.tex.y + 1600.0f) * modifierValue;
 	float threshold = max(t1 * t2 * t3, 0.0f) * 50.0f;
 	
 	// Applying the final noise layer.

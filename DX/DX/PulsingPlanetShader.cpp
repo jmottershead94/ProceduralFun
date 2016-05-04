@@ -1,7 +1,7 @@
 // Pulsing planet shader .cpp
 #include "PulsingPlanetShader.h"
 
-PulsingPlanetShader::PulsingPlanetShader(ID3D11Device* device, HWND hwnd, int proceduralIDNumber) : BaseShader(device, hwnd)
+PulsingPlanetShader::PulsingPlanetShader(ID3D11Device* device, HWND hwnd) : BaseShader(device, hwnd)
 {
 
 	// Load our shader files.

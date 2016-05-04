@@ -1,7 +1,11 @@
 // Jason Mottershead, 1300455.
 
 // Perlin noise flora vertex shader
-// Basic shader for rendering textured geometry
+
+// This shader implementation of noise was created by following
+// this tutorial: http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
+
+// Rigid noise creation by: https://www.seedofandromeda.com/blogs/49-procedural-gas-giant-rendering-with-gpu-noise
 
 cbuffer MatrixBuffer : register(b0)
 {
@@ -84,7 +88,7 @@ float CreatePerlinNoise(int octaves, float x, float y)
 		// Get the noise sample.
 		result += InterpolatedNoise(x * frequency, y * frequency) * amplitude;
 
-		// Make the frequency length twice as small.
+		// Make the frequency longer.
 		frequency += 2.0f;
 
 		// Add to our maximum possible amplitude.
@@ -110,7 +114,7 @@ float CreateRigidNoise(int octaves, float x, float y)
 		// Get the noise sample.
 		result += ((1.0f - abs(InterpolatedNoise(x * frequency, y * frequency))) * 2.0f - 1.0f) * amplitude;
 
-		// Make the frequency length twice as small.
+		// Make the frequency longer.
 		frequency += 2.0f;
 
 		// Add to our maximum possible amplitude.

@@ -31,8 +31,8 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 
 	// Initialising the shaders.
 	m_textureShader = new TextureShader(m_Direct3D->GetDevice(), hwnd);
-	m_perlinNoiseShader = new PulsingPlanetShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::PLANET);
-	m_floraShader = new FloraShader(m_Direct3D->GetDevice(), hwnd, ProceduralIDNumber::FLORA);
+	m_pulsingPlanetShader = new PulsingPlanetShader(m_Direct3D->GetDevice(), hwnd);
+	m_floraShader = new FloraShader(m_Direct3D->GetDevice(), hwnd);
 	m_horizontalBlurShader = new HorizontalBlurShader(m_Direct3D->GetDevice(), hwnd);
 	m_verticalBlurShader = new VerticalBlurShader(m_Direct3D->GetDevice(), hwnd);
 
@@ -40,15 +40,14 @@ ProceduralScene::ProceduralScene(HWND hwnd, int screenWidth, int screenHeight, D
 	sphereRotation = 0.0f;
 
 	// Flora variables.
-	treeRotation = {0.0f, 0.0f, 0.0f};
 	gravityControl = 1.0f;
 
 	// Gaussian Blur flag.
 	m_activateGaussianBlur = false;
 
 	// Initialise the seed for our perlin noise selection.
-	m_perlinNoise = new PerlinNoise();
 	m_simplexNoise = new SimplexNoise(1.0f, 1.0f, 2.0f, 0.5f);
+
 	srand(time(0));
 
 	for (int i = 0; i < 2; i++)
@@ -128,22 +127,16 @@ ProceduralScene::~ProceduralScene()
 		m_textureShader = nullptr;
 	}
 
-	if (m_perlinNoiseShader)
+	if (m_pulsingPlanetShader)
 	{
-		delete m_perlinNoiseShader;
-		m_perlinNoiseShader = nullptr;
+		delete m_pulsingPlanetShader;
+		m_pulsingPlanetShader = nullptr;
 	}
 
 	if (m_floraShader)
 	{
 		delete m_floraShader;
 		m_floraShader = nullptr;
-	}
-
-	if (m_perlinNoise)
-	{
-		delete m_perlinNoise;
-		m_perlinNoise = nullptr;
 	}
 
 	if (m_simplexNoise)
@@ -300,19 +293,6 @@ void ProceduralScene::RemoveFlora()
 
 void ProceduralScene::Controls(float dt)
 {
-
-	if (m_Input->isKeyDown('P'))
-	{
-		treeRotation.x += 0.001f;
-	}
-	else if (m_Input->isKeyDown('Y'))
-	{
-		treeRotation.y += 0.001f;
-	}
-	else if (m_Input->isKeyDown('R'))
-	{
-		treeRotation.z += 0.001f;
-	}
 
 	if (m_Input->isLeftMouseDown())
 	{
@@ -556,8 +536,8 @@ void ProceduralScene::ProcessSphere(XMMATRIX& worldMatrix, XMMATRIX& viewMatrix,
 	// If the sphere uses procedural at all.
 	if (isProcedural)
 	{
-		m_perlinNoiseShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, sphereMesh->GetTexture(), m_Timer);
-		m_perlinNoiseShader->Render(m_Direct3D->GetDeviceContext(), sphereMesh->GetIndexCount());
+		m_pulsingPlanetShader->SetShaderParameters(m_Direct3D->GetDeviceContext(), worldMatrix, viewMatrix, projectionMatrix, sphereMesh->GetTexture(), m_Timer);
+		m_pulsingPlanetShader->Render(m_Direct3D->GetDeviceContext(), sphereMesh->GetIndexCount());
 	}
 	// Otherwise, we do not use procedural.
 	else
@@ -782,8 +762,6 @@ void ProceduralScene::RenderTheGround(XMMATRIX& worldMatrix, XMMATRIX& viewMatri
 void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& viewMatrix, XMMATRIX& projectionMatrix)
 {
 
-	XMMATRIX orthoMatrix, baseViewMatrix;
-
 	// Rotate the spheres.
 	sphereRotation += 0.001f;
 
@@ -807,7 +785,7 @@ void ProceduralScene::RenderTheScene(float dt, XMMATRIX& worldMatrix, XMMATRIX& 
 
 	// Render the dirt ground.
 	RenderTheGround(worldMatrix, viewMatrix, projectionMatrix);
-
+	
 	// Process all of the procedural flora.
 	ProcessFlora(worldMatrix, viewMatrix, projectionMatrix);
 

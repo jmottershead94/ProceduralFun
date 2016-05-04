@@ -35,10 +35,7 @@ OutputType main(InputType input)
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
-
-	// Offsetting by 0.5 units.
-	//output.tex = (input.tex + 0.5f);
-
+	
 	// Store the texture coordinates for the pixel shader.
 	output.tex = input.tex;
 
